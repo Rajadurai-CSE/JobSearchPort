@@ -1,0 +1,5 @@
+package com.job.enums;
+
+public enum ApplicationStage {
+  APPLIED,SHORTLISTED,INTERVIEW,REJECTED,HIRED,WITHDRAWN
+}
