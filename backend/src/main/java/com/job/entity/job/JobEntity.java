@@ -46,14 +46,14 @@ public class JobEntity {
 	private String salaryRange;
 	private String employmentType;
 	private int vacancies;
-	private LocalDateTime deadline;
+	private LocalDate deadline;
 
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 	
 
-	@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FlaggedJobs> flaggedJobs;
+	// @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<FlaggedJobs> flaggedJobs;
 
 	@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JobApplications> jobApplications;
@@ -119,10 +119,10 @@ public class JobEntity {
 	public void setVacancies(int vacancies) {
 		this.vacancies = vacancies;
 	}
-	public LocalDateTime getDeadline() {
+	public LocalDate getDeadline() {
 		return deadline;
 	}
-	public void setDeadline(LocalDateTime deadline) {
+	public void setDeadline(LocalDate deadline) {
 		this.deadline = deadline;
 	}
 	public LocalDateTime getCreatedAt() {
@@ -137,16 +137,16 @@ public class JobEntity {
     /**
      * @return List<FlaggedJobs> return the flaggedJobs
      */
-    public List<FlaggedJobs> getFlaggedJobs() {
-        return flaggedJobs;
-    }
+    // public List<FlaggedJobs> getFlaggedJobs() {
+    //     return flaggedJobs;
+    // }
 
-    /**
-     * @param flaggedJobs the flaggedJobs to set
-     */
-    public void setFlaggedJobs(List<FlaggedJobs> flaggedJobs) {
-        this.flaggedJobs = flaggedJobs;
-    }
+    // /**
+    //  * @param flaggedJobs the flaggedJobs to set
+    //  */
+    // public void setFlaggedJobs(List<FlaggedJobs> flaggedJobs) {
+    //     this.flaggedJobs = flaggedJobs;
+    // }
 
     /**
      * @return List<JobApplication> return the jobApplications

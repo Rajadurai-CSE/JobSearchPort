@@ -1,4 +1,4 @@
-package com.job.dto.Admin;
+package com.job.dto.admin;
 
 import java.time.LocalDateTime;
 

@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.job.dto.job.JobResponseDto;
 import com.job.dto.job.JobSearchRequestdto;
 import com.job.dto.jobseeker.ApplicationDto;
 import com.job.dto.jobseeker.BookmarkDto;
 import com.job.dto.jobseeker.FlaggedJobStatusDto;
+import com.job.dto.jobseeker.JobApplyRequestDto;
 import com.job.dto.jobseeker.JSProfileUpdateRequestDto;
 import com.job.dto.jobseeker.JSProfileUpdateResponseDto;
 import com.job.service.JobSeekerService;
@@ -61,9 +64,9 @@ public class JobSeekerController {
 	}
 
 	// Applications
-	@PostMapping("/apply/{seekerId}/{jobId}")
-	public ResponseEntity<String> applyForJob(@PathVariable Long jobId, @PathVariable Long seekerId) {
-		service.applyForJob(jobId, seekerId);
+	@PostMapping("/apply")
+	public ResponseEntity<String> applyForJob(@Valid @RequestBody JobApplyRequestDto request) {
+		service.applyForJob(request.getJobId(), request.getJobSeekerId(), request.getResumeUrl());
 		return new ResponseEntity<>("Applied successfully", HttpStatus.CREATED);
 	}
 

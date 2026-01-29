@@ -1,0 +1,60 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Flagged Jobs</h1>
+        <p>Review reported job postings</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading && flaggedJobs.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Reason</th>
+                    <th>Reported On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of flaggedJobs">
+                    <td>{{ item.jobId }}</td>
+                    <td>{{ item.reason }}</td>
+                    <td>{{ item.appliedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="{
+              'badge-warning': item.status === 'PENDING',
+              'badge-info': item.status === 'IGNORED',
+              'badge-danger': item.status === 'DELETED'
+            }">{{ item.status }}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons" *ngIf="item.status === 'PENDING'">
+                            <button class="btn btn-sm btn-outline" (click)="ignoreFlag(item)">Ignore</button>
+                            <button class="btn btn-sm btn-danger" (click)="deleteJob(item)">Delete Job</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && flaggedJobs.length === 0" class="empty-state">
+        <div class="empty-state-icon">✓</div>
+        <h3>No flagged jobs</h3>
+        <p>There are no reports to review</p>
+    </div>
+</div>

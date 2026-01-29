@@ -1,0 +1,85 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>System overview and management</p>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="!loading && stats">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ stats.totalJobSeekers }}</h3>
+                <p>Job Seekers</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.totalEmployers }}</h3>
+                <p>Employers</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.totalJobs }}</h3>
+                <p>Total Jobs</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.totalApplications }}</h3>
+                <p>Applications</p>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alerts-grid">
+            <a routerLink="/admin/employers" class="alert-card" *ngIf="stats.pendingEmployers > 0">
+                <span class="alert-icon">⏳</span>
+                <div>
+                    <h3>{{ stats.pendingEmployers }} Pending Employers</h3>
+                    <p>Awaiting approval</p>
+                </div>
+            </a>
+            <a routerLink="/admin/flagged-jobseekers" class="alert-card warning" *ngIf="stats.flaggedJobSeekers > 0">
+                <span class="alert-icon">🚩</span>
+                <div>
+                    <h3>{{ stats.flaggedJobSeekers }} Flagged Seekers</h3>
+                    <p>Need review</p>
+                </div>
+            </a>
+            <a routerLink="/admin/flagged-jobs" class="alert-card warning" *ngIf="stats.flaggedJobs > 0">
+                <span class="alert-icon">🚩</span>
+                <div>
+                    <h3>{{ stats.flaggedJobs }} Flagged Jobs</h3>
+                    <p>Need review</p>
+                </div>
+            </a>
+            <a routerLink="/admin/users" class="alert-card danger" *ngIf="stats.revokedUsers > 0">
+                <span class="alert-icon">⛔</span>
+                <div>
+                    <h3>{{ stats.revokedUsers }} Revoked Users</h3>
+                    <p>View details</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h2>Quick Actions</h2>
+            <div class="grid-3 mt-2">
+                <a routerLink="/admin/users" class="quick-link">
+                    <span class="quick-icon">👥</span>
+                    <span>Manage Users</span>
+                </a>
+                <a routerLink="/admin/employers" class="quick-link">
+                    <span class="quick-icon">🏢</span>
+                    <span>Employer Approvals</span>
+                </a>
+                <a routerLink="/admin/flagged-jobseekers" class="quick-link">
+                    <span class="quick-icon">🚩</span>
+                    <span>Flagged Job Seekers</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

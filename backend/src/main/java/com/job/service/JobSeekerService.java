@@ -1,11 +1,8 @@
 package com.job.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.job.dto.job.JobResponseDto;
 import com.job.dto.job.JobSearchRequestdto;
 import com.job.dto.jobseeker.ApplicationDto;
@@ -27,7 +24,6 @@ import com.job.repository.jobseeker.FlaggedJobsRepo;
 import com.job.repository.jobseeker.JobSeekerProfileRepo;
 import com.job.mapper.JobMapper;
 import com.job.mapper.JobSeekerMapper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,7 +102,6 @@ public class JobSeekerService {
     }
 
     public void bookmarkJob(Long seekerId, Long jobId) {
-        // Check if already bookmarked
         List<BookMarkedJobs> existing = bookmarkRepo.findByJobSeekerId(seekerId);
         for (BookMarkedJobs b : existing) {
             if (b.getJob() != null && b.getJob().getJobId().equals(jobId)) {
@@ -151,12 +146,13 @@ public class JobSeekerService {
     }
 
     public void flagJob(Long jobId, Long seekerId, String reason) {
-        JobEntity j = jobEntityRepo.findById(jobId)
-                .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + jobId));
+        if (!jobEntityRepo.existsById(jobId)) {
+            throw new IllegalArgumentException("Job not found with id: " + jobId);
+        }
         JobSeekerProfile p = jobSeekerProfileRepo.findById(seekerId)
                 .orElseThrow(() -> new IllegalArgumentException("JobSeeker not found with id: " + seekerId));
         FlaggedJobs flag = new FlaggedJobs();
-        flag.setJob(j);
+        flag.setJobId(jobId);
         flag.setJobSeeker(p);
         flag.setReason(reason);
         flaggedJobsRepo.save(flag);
@@ -168,10 +164,12 @@ public class JobSeekerService {
         for (FlaggedJobs f : flags) {
             FlaggedJobStatusDto dto = new FlaggedJobStatusDto();
             dto.setRequestId(f.getRequestId());
-            dto.setJobId(f.getJob() != null ? f.getJob().getJobId() : null);
-            dto.setJobTitle(f.getJob() != null ? f.getJob().getTitle() : null);
+            dto.setJobId(f.getJobId());
             dto.setReason(f.getReason());
             dto.setAppliedAt(f.getAppliedAt());
+            dto.setStatus(
+                    FlaggedJobStatusDto.Status.valueOf(
+                            f.getStatus().name()));
             dtos.add(dto);
         }
         return dtos;
@@ -199,13 +197,11 @@ public class JobSeekerService {
         return out;
     }
 
-    // Search jobs with filters
     public List<JobResponseDto> searchJobs(JobSearchRequestdto req) {
         List<JobEntity> allJobs = jobEntityRepo.findAll();
 
         return allJobs.stream()
                 .filter(job -> {
-                    // Filter by location
                     if (req.getLocation() != null && !req.getLocation().isEmpty()) {
                         if (job.getLocation() == null ||
                                 !job.getLocation().toLowerCase().contains(req.getLocation().toLowerCase())) {
@@ -213,7 +209,6 @@ public class JobSeekerService {
                         }
                     }
 
-                    // Filter by skills
                     if (req.getSkills() != null && !req.getSkills().isEmpty()) {
                         if (job.getRequiredSkills() == null) {
                             return false;
@@ -231,14 +226,12 @@ public class JobSeekerService {
                             return false;
                     }
 
-                    // Filter by minimum experience
                     if (req.getMinExperience() != null) {
                         if (job.getMinExperience() > req.getMinExperience()) {
                             return false;
                         }
                     }
 
-                    // Filter by salary range (simple contains check)
                     if (req.getSalaryRange() != null && !req.getSalaryRange().isEmpty()) {
                         if (job.getSalaryRange() == null ||
                                 !job.getSalaryRange().toLowerCase().contains(req.getSalaryRange().toLowerCase())) {
@@ -252,7 +245,7 @@ public class JobSeekerService {
                 .collect(Collectors.toList());
     }
 
-    public void applyForJob(Long jobId, Long jobseekerId) {
+    public void applyForJob(Long jobId, Long jobseekerId, String resumeUrl) {
         JobEntity job = jobEntityRepo.findById(jobId)
                 .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + jobId));
         JobSeekerProfile seeker = jobSeekerProfileRepo.findById(jobseekerId)
@@ -276,6 +269,7 @@ public class JobSeekerService {
         }
         application.setStage(ApplicationStage.APPLIED);
         application.setUpdatedAt(LocalDate.now());
+        application.setResumeUrl(resumeUrl);
         jobApplicationRepo.save(application);
     }
 }

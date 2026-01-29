@@ -1,14 +1,20 @@
-package com.job.dto.Admin;
+package com.job.dto.admin;
 
 import java.time.LocalDateTime;
 
 public class FlaggedJobDto {
+
+    public enum Status {
+        PENDING, IGNORED, DELETED
+    }
+
     private Long requestId;
     private Long jobId;
     private Long jobSeekerId;
     private String reason;
     private LocalDateTime appliedAt;
     private String actionTaken;
+    private Status status;
 
     public Long getRequestId() {
         return requestId;
@@ -56,5 +62,13 @@ public class FlaggedJobDto {
 
     public void setActionTaken(String actionTaken) {
         this.actionTaken = actionTaken;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

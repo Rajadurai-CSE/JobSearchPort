@@ -1,0 +1,46 @@
+<nav class="navbar">
+    <div class="navbar-brand">
+        <a routerLink="/" class="brand-link">
+            <span class="brand-icon">💼</span>
+            Job Portal
+        </a>
+    </div>
+
+    <div class="navbar-menu" *ngIf="authService.isLoggedIn()">
+        <!-- Job Seeker Menu -->
+        <ng-container *ngIf="authService.getUserRole() === 'JOB_SEEKER'">
+            <a routerLink="/jobseeker/dashboard" class="nav-link">Dashboard</a>
+            <a routerLink="/jobseeker/jobs" class="nav-link">Find Jobs</a>
+            <a routerLink="/jobseeker/applications" class="nav-link">Applications</a>
+            <a routerLink="/jobseeker/bookmarks" class="nav-link">Bookmarks</a>
+            <a routerLink="/jobseeker/profile" class="nav-link">Profile</a>
+        </ng-container>
+
+        <!-- Employer Menu -->
+        <ng-container *ngIf="authService.getUserRole() === 'EMPLOYER'">
+            <a routerLink="/employer/dashboard" class="nav-link">Dashboard</a>
+            <a routerLink="/employer/jobs" class="nav-link">My Jobs</a>
+            <a routerLink="/employer/profile" class="nav-link">Profile</a>
+        </ng-container>
+
+        <!-- Admin Menu -->
+        <ng-container *ngIf="authService.getUserRole() === 'ADMIN'">
+            <a routerLink="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a routerLink="/admin/users" class="nav-link">Users</a>
+            <a routerLink="/admin/employers" class="nav-link">Employers</a>
+            <a routerLink="/admin/flagged-jobseekers" class="nav-link">Flagged Seekers</a>
+            <a routerLink="/admin/flagged-jobs" class="nav-link">Flagged Jobs</a>
+        </ng-container>
+    </div>
+
+    <div class="navbar-end">
+        <ng-container *ngIf="authService.isLoggedIn(); else loginLinks">
+            <span class="user-info">{{ authService.getUser()?.email }}</span>
+            <button class="btn btn-outline-nav" (click)="logout()">Logout</button>
+        </ng-container>
+        <ng-template #loginLinks>
+            <a routerLink="/login" class="btn btn-outline-nav">Login</a>
+            <a routerLink="/register" class="btn btn-primary-nav">Sign Up</a>
+        </ng-template>
+    </div>
+</nav>

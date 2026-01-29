@@ -1,0 +1,129 @@
+<div class="setup-container">
+    <div class="setup-card">
+        <div class="setup-header">
+            <h1>🎉 Welcome!</h1>
+            <p>Complete your profile to help admins verify your account faster.</p>
+        </div>
+
+        <!-- Toast -->
+        <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+            {{ message }}
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading">
+            <form (ngSubmit)="saveProfile()">
+                <!-- Personal Information Section -->
+                <div class="section-header">
+                    <h3>📋 Personal Information</h3>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Name *</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.name" name="name"
+                        placeholder="Your full name" required>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control" [(ngModel)]="formData.contactNo" name="contactNo"
+                            placeholder="+1 234 567 8900">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Verification URL</label>
+                        <input type="url" class="form-control" [(ngModel)]="formData.employerVerificationUrl"
+                            name="employerVerificationUrl" placeholder="https://linkedin.com/in/yourprofile">
+                        <small class="text-muted">LinkedIn or company page to verify your identity</small>
+                    </div>
+                </div>
+
+                <!-- Company Section -->
+                <div class="section-header mt-4">
+                    <h3>🏢 Company Information</h3>
+                </div>
+
+                <!-- Company Search -->
+                <div class="form-group" *ngIf="!createNewCompany">
+                    <label class="form-label">Select Company</label>
+                    <div class="company-search-container">
+                        <input type="text" class="form-control" [(ngModel)]="companySearchQuery" name="companySearch"
+                            (input)="onCompanySearch()" (focus)="showCompanyDropdown = true"
+                            placeholder="Search for your company..." autocomplete="off">
+
+                        <!-- Selected Company Badge -->
+                        <div *ngIf="selectedCompany" class="selected-company">
+                            <span class="company-badge">
+                                ✓ {{ selectedCompany.companyName }}
+                                <button type="button" class="clear-btn" (click)="clearCompanySelection()">×</button>
+                            </span>
+                        </div>
+
+                        <!-- Dropdown -->
+                        <div class="company-dropdown" *ngIf="showCompanyDropdown && !selectedCompany">
+                            <div *ngIf="filteredCompanies.length === 0" class="dropdown-empty">
+                                No companies found. <a href="javascript:void(0)" (click)="toggleNewCompanyForm()">Create
+                                    new</a>
+                            </div>
+                            <div *ngFor="let company of filteredCompanies" class="dropdown-item"
+                                (click)="selectCompany(company)">
+                                <strong>{{ company.companyName }}</strong>
+                                <small *ngIf="company.companyURL">{{ company.companyURL }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="javascript:void(0)" class="text-primary" (click)="toggleNewCompanyForm()">
+                            + Can't find your company? Add a new one
+                        </a>
+                    </div>
+                </div>
+
+                <!-- New Company Form -->
+                <div *ngIf="createNewCompany" class="new-company-form">
+                    <div class="form-header">
+                        <h4>Add New Company</h4>
+                        <button type="button" class="btn btn-sm btn-outline" (click)="toggleNewCompanyForm()">
+                            ← Back to search
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Company Name *</label>
+                        <input type="text" class="form-control" [(ngModel)]="newCompany.companyName"
+                            name="newCompanyName" placeholder="Company name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Company Website</label>
+                        <input type="url" class="form-control" [(ngModel)]="newCompany.companyURL" name="newCompanyURL"
+                            placeholder="https://yourcompany.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Company Description</label>
+                        <textarea class="form-control" [(ngModel)]="newCompany.companyDescription"
+                            name="newCompanyDescription" rows="3"
+                            placeholder="Brief description of your company"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" (click)="skipSetup()">Skip for now</button>
+                    <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving">
+                        {{ saving ? 'Saving...' : 'Save & Continue' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="setup-footer">
+            <p class="text-muted">Your account is pending admin approval. Providing complete information helps speed up
+                the review process.</p>
+        </div>
+    </div>
+</div>

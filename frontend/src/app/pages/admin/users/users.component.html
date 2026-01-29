@@ -1,0 +1,59 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>User Management</h1>
+        <p>View and manage all users</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Users Table -->
+    <div *ngIf="!loading && users.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users">
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td><span class="badge badge-primary">{{ user.role }}</span></td>
+                    <td><span class="badge" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-warning" (click)="revokeUser(user)"
+                                *ngIf="user.status === 'APPROVED' && user.role !== 'ADMIN'">
+                                Revoke
+                            </button>
+                            <button class="btn btn-sm btn-danger" (click)="deleteUser(user)"
+                                *ngIf="user.status === 'REVOKED'">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && users.length === 0" class="empty-state">
+        <div class="empty-state-icon">👥</div>
+        <h3>No users found</h3>
+    </div>
+</div>

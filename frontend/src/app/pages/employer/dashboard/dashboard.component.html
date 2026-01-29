@@ -1,0 +1,74 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Employer Dashboard</h1>
+        <p>Manage your job postings and applicants</p>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="!loading">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ activeJobsCount }}</h3>
+                <p>Active Jobs</p>
+            </div>
+            <div class="stat-card">
+                <h3>0</h3>
+                <p>Total Applicants</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid-2 mt-4">
+            <a routerLink="/employer/jobs/create" class="quick-action-card">
+                <span class="quick-icon">➕</span>
+                <div>
+                    <h3>Post New Job</h3>
+                    <p>Create a new job posting</p>
+                </div>
+            </a>
+            <a routerLink="/employer/jobs" class="quick-action-card">
+                <span class="quick-icon">📋</span>
+                <div>
+                    <h3>Manage Jobs</h3>
+                    <p>View and edit your postings</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="section" *ngIf="jobs.length > 0">
+            <div class="section-header">
+                <h2>Recent Job Postings</h2>
+                <a routerLink="/employer/jobs">View All</a>
+            </div>
+            <div class="card" *ngFor="let job of jobs.slice(0, 5)">
+                <div class="job-row">
+                    <div>
+                        <h4>{{ job.title }}</h4>
+                        <p class="text-muted text-sm">{{ job.location }} • {{ job.employmentType }}</p>
+                    </div>
+                    <div class="action-buttons">
+                        <a [routerLink]="['/employer/applicants', job.jobId]" class="btn btn-outline btn-sm">View
+                            Applicants</a>
+                        <a [routerLink]="['/employer/jobs', job.jobId, 'edit']"
+                            class="btn btn-sm btn-secondary">Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="jobs.length === 0" class="empty-state mt-4">
+            <div class="empty-state-icon">📭</div>
+            <h3>No job postings yet</h3>
+            <p>Start by creating your first job posting</p>
+            <a routerLink="/employer/jobs/create" class="btn btn-primary mt-2">Post a Job</a>
+        </div>
+    </div>
+</div>

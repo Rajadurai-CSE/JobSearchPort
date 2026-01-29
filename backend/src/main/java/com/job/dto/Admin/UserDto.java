@@ -1,4 +1,4 @@
-package com.job.dto.Admin;
+package com.job.dto.admin;
 
 import com.job.enums.Approval_Status;
 import com.job.enums.Role;

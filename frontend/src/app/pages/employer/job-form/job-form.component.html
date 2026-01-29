@@ -1,0 +1,92 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>{{ isEditMode ? 'Edit Job' : 'Post New Job' }}</h1>
+        <p>{{ isEditMode ? 'Update your job posting' : 'Create a new job listing' }}</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="!loading" class="form-card">
+        <form (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label class="form-label">Job Title *</label>
+                <input type="text" class="form-control" [(ngModel)]="formData.title" name="title" required
+                    placeholder="e.g., Senior Frontend Developer">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea class="form-control" [(ngModel)]="formData.description" name="description" rows="5" required
+                    placeholder="Describe the role and responsibilities..."></textarea>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Location *</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.location" name="location" required
+                        placeholder="e.g., New York, NY">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Employment Type</label>
+                    <select class="form-control form-select" [(ngModel)]="formData.employmentType"
+                        name="employmentType">
+                        <option value="FULL_TIME">Full-time</option>
+                        <option value="PART_TIME">Part-time</option>
+                        <option value="CONTRACT">Contract</option>
+                        <option value="INTERNSHIP">Internship</option>
+                        <option value="REMOTE">Remote</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Salary Range</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.salaryRange" name="salaryRange"
+                        placeholder="e.g., $80,000 - $100,000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Application Deadline</label>
+                    <input type="date" class="form-control" [(ngModel)]="formData.applicationDeadline"
+                        name="applicationDeadline">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Min. Experience (years)</label>
+                    <input type="number" class="form-control" [(ngModel)]="formData.minimumExperience"
+                        name="minimumExperience" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">No. of Vacancies</label>
+                    <input type="number" class="form-control" [(ngModel)]="formData.noOfVacancies" name="noOfVacancies"
+                        min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Required Skills *</label>
+                <input type="text" class="form-control" [(ngModel)]="formData.requiredSkills" name="requiredSkills"
+                    required placeholder="e.g., JavaScript, React, TypeScript">
+            </div>
+
+            <div class="form-actions">
+                <a routerLink="/employer/jobs" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary" [disabled]="saving">
+                    {{ saving ? 'Saving...' : (isEditMode ? 'Update Job' : 'Post Job') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

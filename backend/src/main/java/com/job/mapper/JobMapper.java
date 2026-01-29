@@ -1,5 +1,7 @@
 package com.job.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.job.dto.job.JobResponseDto;
 import com.job.entity.job.JobEntity;
 
@@ -21,4 +23,15 @@ public class JobMapper {
         dto.setApplicationDeadline(j.getDeadline());
         return dto;
     } 
+    public static List<JobResponseDto> JobResponseDto(List<JobEntity> jobs) {
+        List<JobResponseDto> dtos = new ArrayList<>();
+        if (jobs == null) {
+            return dtos;
+        }
+
+        for (JobEntity job : jobs) {
+            dtos.add(JobMapper.JobResponseDto(job));
+        }
+        return dtos;
+    }
 }

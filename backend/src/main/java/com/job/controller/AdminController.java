@@ -1,7 +1,6 @@
 package com.job.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.job.dto.Admin.DisplayEmployerProfileDto;
-import com.job.dto.Admin.DisplayReportedJS;
-import com.job.dto.Admin.FlaggedJobDto;
-import com.job.dto.Admin.SystemStatisticsDto;
-import com.job.dto.Admin.UserDto;
+import com.job.dto.admin.DisplayEmployerProfileDto;
+import com.job.dto.admin.DisplayReportedJS;
+import com.job.dto.admin.FlaggedJobDto;
+import com.job.dto.admin.SystemStatisticsDto;
+import com.job.dto.admin.UserDto;
 import com.job.service.AdminService;
 
 @RestController
@@ -27,19 +26,6 @@ public class AdminController {
 	@Autowired
 	private AdminService adminService;
 
-	// System Statistics
-	@GetMapping("/statistics")
-	public ResponseEntity<SystemStatisticsDto> getStatistics() {
-		return ResponseEntity.ok(adminService.getSystemStatistics());
-	}
-
-	// All Users
-	@GetMapping("/users")
-	public ResponseEntity<List<UserDto>> getAllUsers() {
-		return ResponseEntity.ok(adminService.getAllUsers());
-	}
-
-	// Flagged Job Seekers
 	@GetMapping("/flagged-jobseekers")
 	public ResponseEntity<List<DisplayReportedJS>> getFlaggedJobSeekers() {
 		return ResponseEntity.ok(adminService.getService());
@@ -53,20 +39,23 @@ public class AdminController {
 		return new ResponseEntity<>(saved, HttpStatus.OK);
 	}
 
-	// Flagged Jobs
 	@GetMapping("/flagged-jobs")
 	public ResponseEntity<List<FlaggedJobDto>> getFlaggedJobs() {
 		return ResponseEntity.ok(adminService.getFlaggedJobs());
 	}
 
-	@PutMapping("/flagged-job/{id}/action")
-	public ResponseEntity<FlaggedJobDto> updateFlaggedJob(
-			@PathVariable("id") Long requestId,
-			@RequestBody String actionTaken) {
-		return ResponseEntity.ok(adminService.updateFlaggedJob(requestId, actionTaken));
-	}
+	@PutMapping("/flagged-jobs/{flagId}/ignore")
+    public ResponseEntity<String> ignoreFlaggedJob(@PathVariable Long flagId) {
+        adminService.ignoreFlag(flagId);
+        return ResponseEntity.ok("Flag has been ignored successfully");
+    }
 
-	// Employers
+    @PutMapping("/flagged-jobs/{flagId}/delete")
+    public ResponseEntity<String> deleteFlaggedJob(@PathVariable Long flagId) {
+        adminService.deleteJobUsingFlagId(flagId);
+        return ResponseEntity.ok("Job has been deleted successfully");
+    }
+
 	@GetMapping("/employers")
 	public ResponseEntity<List<DisplayEmployerProfileDto>> getAllEmployers() {
 		return ResponseEntity.ok(adminService.getAllEmployers());
@@ -87,7 +76,6 @@ public class AdminController {
 		return ResponseEntity.ok(adminService.revokeUser(id));
 	}
 
-	// Revoked Users
 	@GetMapping("/revoked-users")
 	public ResponseEntity<List<UserDto>> getRevokedUsers() {
 		return ResponseEntity.ok(adminService.getRevokedUsers());
@@ -96,5 +84,15 @@ public class AdminController {
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<String> deleteUser(@PathVariable Long id) {
 		return ResponseEntity.ok(adminService.deleteRevokedUser(id));
+	}
+
+	@GetMapping("/users")
+	public ResponseEntity<List<UserDto>> getAllUsers() {
+		return ResponseEntity.ok(adminService.getAllUsers());
+	}
+
+	@GetMapping("/statistics")
+	public ResponseEntity<SystemStatisticsDto> getStatistics() {
+		return ResponseEntity.ok(adminService.getSystemStatistics());
 	}
 }

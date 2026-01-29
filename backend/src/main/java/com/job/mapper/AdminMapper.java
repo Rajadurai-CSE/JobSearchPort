@@ -3,8 +3,8 @@ package com.job.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.job.dto.Admin.DisplayEmployerProfileDto;
-import com.job.dto.Admin.DisplayReportedJS;
+import com.job.dto.admin.DisplayEmployerProfileDto;
+import com.job.dto.admin.DisplayReportedJS;
 import com.job.entity.employer.EmployerProfile;
 import com.job.entity.employer.FlaggedJobSeekers;
 

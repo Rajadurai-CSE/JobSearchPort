@@ -13,7 +13,7 @@ public class JobUpdateRequestDto {
     private Integer noOfVacancies;
     private Integer minimumExperience;
     private String employmentType;
-    private LocalDateTime applicationDeadline;
+    private LocalDate applicationDeadline;
     // getters and setters
     public String getTitle() {
         return title;
@@ -63,10 +63,10 @@ public class JobUpdateRequestDto {
     public void setEmploymentType(String employmentType) {
         this.employmentType = employmentType;
     }
-    public LocalDateTime getApplicationDeadline() {
+    public LocalDate getApplicationDeadline() {
         return applicationDeadline;
     }
-    public void setApplicationDeadline(LocalDateTime applicationDeadline) {
+    public void setApplicationDeadline(LocalDate applicationDeadline) {
         this.applicationDeadline = applicationDeadline;
     }
 }

@@ -12,6 +12,10 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./pages/auth/register/register.component').then(m => m.RegisterComponent)
     },
+    {
+        path: 'employer-setup/:userId',
+        loadComponent: () => import('./pages/employer/setup/setup.component').then(m => m.EmployerSetupComponent)
+    },
 
     // Job Seeker routes
     {
@@ -112,7 +116,7 @@ export const routes: Routes = [
             },
             {
                 path: 'flagged-jobseekers',
-                loadComponent: () => import('./pages/admin/flagged-jobseekers/flagged-jobseekers.component').then(m => m.FlaggedJobSeekersComponent)
+                loadComponent: () => import('./pages/admin/flagged-jobseekers/flagged-jobseekers.component').then(m => m.FlaggedJobseekersComponent)
             },
             {
                 path: 'flagged-jobs',

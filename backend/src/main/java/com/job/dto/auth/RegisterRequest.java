@@ -1,4 +1,4 @@
-package com.job.dto.register;
+package com.job.dto.auth;
 import com.job.enums.Role;
 
 

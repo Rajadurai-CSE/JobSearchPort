@@ -1,0 +1,61 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1>My Job Postings</h1>
+            <p>Manage your job listings</p>
+        </div>
+        <a routerLink="/employer/jobs/create" class="btn btn-primary">+ Post New Job</a>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Jobs Table -->
+    <div *ngIf="!loading && jobs.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let job of jobs">
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.location }}</td>
+                    <td><span class="badge badge-info">{{ job.employmentType }}</span></td>
+                    <td>{{ job.applicationDeadline | date:'mediumDate' }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a [routerLink]="['/employer/applicants', job.jobId]"
+                                class="btn btn-sm btn-outline">Applicants</a>
+                            <a [routerLink]="['/employer/jobs', job.jobId, 'edit']"
+                                class="btn btn-sm btn-secondary">Edit</a>
+                            <button class="btn btn-sm btn-danger" (click)="deleteJob(job)">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && jobs.length === 0" class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>No job postings</h3>
+        <p>Create your first job posting to find candidates</p>
+        <a routerLink="/employer/jobs/create" class="btn btn-primary mt-2">Post a Job</a>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Flagged Job Seekers</h1>
+        <p>Review reported job seekers</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading && flaggedUsers.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Reason</th>
+                    <th>Reported On</th>
+                    <th>Action</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of flaggedUsers">
+                    <td>{{ item.jobSeekerEmail }}</td>
+                    <td>{{ item.reason }}</td>
+                    <td>{{ item.appliedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="{
+              'badge-warning': item.actionTaken === 'PENDING',
+              'badge-info': item.actionTaken === 'REVIEWED',
+              'badge-success': item.actionTaken === 'WARNING',
+              'badge-danger': item.actionTaken === 'REVOKED'
+            }">{{ item.actionTaken }}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons" *ngIf="item.actionTaken === 'PENDING'">
+                            <button class="btn btn-sm btn-outline" (click)="takeAction(item, 'REVIEWED')">Mark
+                                Reviewed</button>
+                            <button class="btn btn-sm btn-warning" (click)="takeAction(item, 'WARNING')">Issue
+                                Warning</button>
+                            <button class="btn btn-sm btn-danger" (click)="takeAction(item, 'REVOKED')">Revoke</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && flaggedUsers.length === 0" class="empty-state">
+        <div class="empty-state-icon">✓</div>
+        <h3>No flagged job seekers</h3>
+        <p>There are no reports to review</p>
+    </div>
+</div>

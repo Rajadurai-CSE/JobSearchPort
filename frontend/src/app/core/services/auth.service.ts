@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User } from '../models/auth.model';
+import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User, JwtPayload } from '../models/auth.model';
 
 @Injectable({
     providedIn: 'root'
@@ -12,14 +12,32 @@ export class AuthService {
     public currentUser$ = this.currentUserSubject.asObservable();
 
     constructor(private http: HttpClient) {
-        this.loadUserFromStorage();
+        this.loadUserFromToken();
     }
 
-    private loadUserFromStorage(): void {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            this.currentUserSubject.next(JSON.parse(userData));
+    private loadUserFromToken(): void {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const user = this.decodeToken(token);
+                this.currentUserSubject.next(user);
+            } catch (e) {
+                this.logout();
+            }
         }
+    }
+
+    private decodeToken(token: string): User {
+        // Decode JWT payload (base64)
+        const payload = token.split('.')[1];
+        const decoded: JwtPayload = JSON.parse(atob(payload));
+
+        return {
+            userId: decoded.userId,
+            email: decoded.sub,
+            role: decoded.role,
+            status: decoded.status
+        };
     }
 
     login(request: LoginRequest): Observable<LoginResponse> {
@@ -27,13 +45,7 @@ export class AuthService {
             tap(response => {
                 if (response.token) {
                     localStorage.setItem('token', response.token);
-                    const user: User = {
-                        userId: response.userId,
-                        email: response.email,
-                        role: response.role,
-                        status: response.status
-                    };
-                    localStorage.setItem('user', JSON.stringify(user));
+                    const user = this.decodeToken(response.token);
                     this.currentUserSubject.next(user);
                 }
             })
@@ -41,12 +53,11 @@ export class AuthService {
     }
 
     register(request: RegisterRequest): Observable<RegisterResponse> {
-        return this.http.post<RegisterResponse>(`${this.API_URL}/register`, request);
+        return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, request);
     }
 
     logout(): void {
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
         this.currentUserSubject.next(null);
     }
 
@@ -59,7 +70,17 @@ export class AuthService {
     }
 
     isLoggedIn(): boolean {
-        return !!this.getToken();
+        const token = this.getToken();
+        if (!token) return false;
+
+        try {
+            const payload = token.split('.')[1];
+            const decoded: JwtPayload = JSON.parse(atob(payload));
+            // Check if token is expired
+            return decoded.exp * 1000 > Date.now();
+        } catch {
+            return false;
+        }
     }
 
     getUserRole(): string | null {

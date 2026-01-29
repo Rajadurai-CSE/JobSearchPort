@@ -1,0 +1,53 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Employer Approvals</h1>
+        <p>Review and approve employer registrations</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Employers Table -->
+    <div *ngIf="!loading && employers.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let emp of employers">
+                    <td>{{ emp.name }}</td>
+                    <td>{{ emp.email }}</td>
+                    <td>{{ emp.companyName || 'N/A' }}</td>
+                    <td><span class="badge" [ngClass]="getStatusClass(emp.status)">{{ emp.status }}</span></td>
+                    <td>
+                        <div class="action-buttons" *ngIf="emp.status === 'PENDING'">
+                            <button class="btn btn-sm btn-success" (click)="approveEmployer(emp)">Approve</button>
+                            <button class="btn btn-sm btn-danger" (click)="denyEmployer(emp)">Deny</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && employers.length === 0" class="empty-state">
+        <div class="empty-state-icon">🏢</div>
+        <h3>No employers found</h3>
+    </div>
+</div>

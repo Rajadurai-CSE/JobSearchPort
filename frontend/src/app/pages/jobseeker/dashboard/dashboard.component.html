@@ -1,0 +1,92 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back! Here's an overview of your job search.</p>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="!loading">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ applications.length }}</h3>
+                <p>Total Applications</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ appliedCount }}</h3>
+                <p>Applied</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ interviewCount }}</h3>
+                <p>Interviews</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ bookmarks.length }}</h3>
+                <p>Saved Jobs</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid-2">
+            <a routerLink="/jobseeker/jobs" class="quick-action-card">
+                <span class="quick-icon">🔍</span>
+                <div>
+                    <h3>Search Jobs</h3>
+                    <p>Find your next opportunity</p>
+                </div>
+            </a>
+            <a routerLink="/jobseeker/applications" class="quick-action-card">
+                <span class="quick-icon">📋</span>
+                <div>
+                    <h3>My Applications</h3>
+                    <p>Track your progress</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="section" *ngIf="applications.length > 0">
+            <div class="section-header">
+                <h2>Recent Applications</h2>
+                <a routerLink="/jobseeker/applications">View All</a>
+            </div>
+            <div class="card" *ngFor="let app of applications">
+                <div class="job-row">
+                    <div>
+                        <h4>{{ app.jobTitle }}</h4>
+                        <p class="text-muted">{{ app.companyName }}</p>
+                    </div>
+                    <span class="badge" [ngClass]="{
+            'badge-info': app.stage === 'APPLIED',
+            'badge-warning': app.stage === 'SHORTLISTED',
+            'badge-primary': app.stage === 'INTERVIEW',
+            'badge-success': app.stage === 'HIRED',
+            'badge-danger': app.stage === 'REJECTED'
+          }">{{ app.stage }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Jobs -->
+        <div class="section" *ngIf="bookmarks.length > 0">
+            <div class="section-header">
+                <h2>Saved Jobs</h2>
+                <a routerLink="/jobseeker/bookmarks">View All</a>
+            </div>
+            <div class="card" *ngFor="let bm of bookmarks">
+                <div class="job-row">
+                    <div>
+                        <h4>{{ bm.jobTitle }}</h4>
+                        <p class="text-muted">{{ bm.companyName }} • {{ bm.location }}</p>
+                    </div>
+                    <a [routerLink]="['/jobseeker/jobs', bm.jobId]" class="btn btn-sm btn-outline">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

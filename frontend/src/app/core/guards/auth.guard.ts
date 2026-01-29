@@ -2,11 +2,18 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+// Guard: Check if user is logged in
 export const authGuard: CanActivateFn = (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
     if (authService.isLoggedIn()) {
+        // Check status for revoked users (any role)
+        const status = authService.getUserStatus();
+        if (status === 'REVOKED') {
+            router.navigate(['/revoked']);
+            return false;
+        }
         return true;
     }
 
@@ -14,6 +21,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return false;
 };
 
+// Guard: Check if user has required role
 export const roleGuard: CanActivateFn = (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
@@ -30,11 +38,12 @@ export const roleGuard: CanActivateFn = (route, state) => {
         return true;
     }
 
-    // Redirect to appropriate dashboard
-    router.navigate(['/']);
+    // Redirect to login if role doesn't match
+    router.navigate(['/login']);
     return false;
 };
 
+// Guard: Check employer approval status
 export const statusGuard: CanActivateFn = (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
@@ -52,12 +61,16 @@ export const statusGuard: CanActivateFn = (route, state) => {
         return true;
     }
 
-    // Job seekers are always approved
-    if (role === 'JOB_SEEKER' && status === 'APPROVED') {
-        return true;
+    // Job seekers are auto-approved
+    if (role === 'JOB_SEEKER') {
+        if (status === 'REVOKED') {
+            router.navigate(['/revoked']);
+            return false;
+        }
+        return status === 'APPROVED';
     }
 
-    // Employers need approval
+    // Employers need status check
     if (role === 'EMPLOYER') {
         if (status === 'PENDING') {
             router.navigate(['/employer/pending']);
@@ -65,10 +78,6 @@ export const statusGuard: CanActivateFn = (route, state) => {
         }
         if (status === 'REVOKED') {
             router.navigate(['/revoked']);
-            return false;
-        }
-        if (status === 'DENIED') {
-            router.navigate(['/denied']);
             return false;
         }
         if (status === 'APPROVED') {

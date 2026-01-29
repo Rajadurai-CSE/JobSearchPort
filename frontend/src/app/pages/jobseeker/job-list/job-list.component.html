@@ -1,0 +1,78 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Find Jobs</h1>
+        <p>Search and apply to jobs that match your skills</p>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Job title or keyword" [(ngModel)]="searchTitle">
+            <input type="text" class="form-control" placeholder="Location" [(ngModel)]="searchLocation">
+            <input type="number" class="form-control" placeholder="Min experience" [(ngModel)]="searchMinExp">
+            <input type="text" class="form-control" placeholder="Skills" [(ngModel)]="searchSkills">
+            <button class="btn btn-primary" (click)="searchJobs()">Search</button>
+            <button class="btn btn-outline" (click)="clearFilters()">Clear</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Jobs List -->
+    <div *ngIf="!loading && jobs.length > 0" class="job-grid">
+        <div class="job-card" *ngFor="let job of jobs">
+            <div class="job-header">
+                <h3>{{ job.title }}</h3>
+                <span class="badge badge-info">{{ job.employmentType }}</span>
+            </div>
+            <p class="job-location">📍 {{ job.location }}</p>
+            <p class="job-details">
+                <span>💰 {{ job.salaryRange }}</span>
+                <span>📅 {{ job.minimumExperience }}+ years</span>
+            </p>
+            <p class="job-skills">{{ job.requiredSkills }}</p>
+            <div class="job-actions">
+                <a [routerLink]="['/jobseeker/jobs', job.jobId]" class="btn btn-outline btn-sm">View Details</a>
+                <button class="btn btn-primary btn-sm" (click)="openApplyModal(job.jobId, job.title)"
+                    *ngIf="!appliedJobIds.has(job.jobId)">Apply</button>
+                <button class="btn btn-success btn-sm" disabled *ngIf="appliedJobIds.has(job.jobId)">✓ Applied</button>
+                <button class="btn btn-sm" (click)="bookmarkJob(job.jobId)">🔖</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && jobs.length === 0" class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No jobs found</h3>
+        <p>Try adjusting your search criteria</p>
+    </div>
+
+    <!-- Apply Modal -->
+    <div class="modal-overlay" *ngIf="showApplyModal" (click)="closeApplyModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Apply for this Job</h3>
+            <p class="text-muted">Submit your application for {{ selectedJobTitle }}</p>
+            <div class="form-group">
+                <label class="form-label">Resume URL *</label>
+                <input type="url" class="form-control" [(ngModel)]="resumeUrl"
+                    placeholder="https://drive.google.com/your-resume" required>
+                <small class="text-muted">Link to your resume (Google Drive, Dropbox, etc.)</small>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeApplyModal()">Cancel</button>
+                <button class="btn btn-primary" (click)="applyJob()">Submit Application</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Job Details -->
+    <div *ngIf="!loading && job" class="job-detail-card">
+        <a routerLink="/jobseeker/jobs" class="back-link">← Back to Jobs</a>
+
+        <div class="job-header">
+            <div>
+                <h1>{{ job.title }}</h1>
+                <p class="text-muted">📍 {{ job.location }}</p>
+            </div>
+            <span class="badge badge-info">{{ job.employmentType }}</span>
+        </div>
+
+        <div class="job-meta">
+            <div class="meta-item">
+                <span class="meta-label">Salary</span>
+                <span class="meta-value">{{ job.salaryRange }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Experience</span>
+                <span class="meta-value">{{ job.minimumExperience }}+ years</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Vacancies</span>
+                <span class="meta-value">{{ job.noOfVacancies }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Deadline</span>
+                <span class="meta-value">{{ job.applicationDeadline | date:'mediumDate' }}</span>
+            </div>
+        </div>
+
+        <div class="job-section">
+            <h3>Description</h3>
+            <p>{{ job.description }}</p>
+        </div>
+
+        <div class="job-section">
+            <h3>Required Skills</h3>
+            <div class="skills-list">
+                <span class="skill-tag" *ngFor="let skill of job.requiredSkills.split(',')">{{ skill.trim() }}</span>
+            </div>
+        </div>
+
+        <div class="job-actions">
+            <button class="btn btn-primary btn-lg" (click)="openApplyModal()" *ngIf="!hasApplied">Apply Now</button>
+            <button class="btn btn-success btn-lg" disabled *ngIf="hasApplied">✓ Applied</button>
+            <button class="btn btn-outline btn-lg" (click)="bookmarkJob()">🔖 Save Job</button>
+            <button class="btn btn-danger btn-lg" (click)="openFlagModal()">🚩 Report</button>
+        </div>
+    </div>
+
+    <!-- Apply Modal -->
+    <div class="modal-overlay" *ngIf="showApplyModal" (click)="closeApplyModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Apply for this Job</h3>
+            <p class="text-muted">Submit your application for {{ job?.title }}</p>
+            <div class="form-group">
+                <label class="form-label">Resume URL *</label>
+                <input type="url" class="form-control" [(ngModel)]="resumeUrl"
+                    placeholder="https://drive.google.com/your-resume" required>
+                <small class="text-muted">Link to your resume (Google Drive, Dropbox, etc.)</small>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeApplyModal()">Cancel</button>
+                <button class="btn btn-primary" (click)="applyJob()">Submit Application</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flag Modal -->
+    <div class="modal-overlay" *ngIf="showFlagModal" (click)="closeFlagModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Report this Job</h3>
+            <p class="text-muted">Please provide a reason for reporting this job posting.</p>
+            <div class="form-group">
+                <label class="form-label">Reason</label>
+                <textarea class="form-control" [(ngModel)]="flagReason" rows="4"
+                    placeholder="Describe the issue..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeFlagModal()">Cancel</button>
+                <button class="btn btn-danger" (click)="submitFlag()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+</div>

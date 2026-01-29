@@ -1,4 +1,4 @@
-package com.job.dto.Admin;
+package com.job.dto.admin;
 
 import com.job.dto.employer.CompanyDto;
 import com.job.entity.employer.Company;

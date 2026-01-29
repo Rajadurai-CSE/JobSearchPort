@@ -1,14 +1,12 @@
 package com.job.entity.job;
 
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import org.hibernate.annotations.CreationTimestamp;
-
 import com.job.entity.jobseeker.JobSeekerProfile;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,23 +22,24 @@ public class FlaggedJobs {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long requestId;
 	
-
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_id")
-    private JobEntity job;
-
+	private Long jobId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")
     private JobSeekerProfile jobSeeker;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+    private Status status = Status.PENDING;
 	
-	
+	public enum Status {
+        PENDING, DELETED, IGNORED
+    }
+
 	private String reason;
 
 	@CreationTimestamp
 	private LocalDateTime appliedAt;
-	
 	
 	public Long getRequestId() {
 		return requestId;	
@@ -48,7 +47,6 @@ public class FlaggedJobs {
 	public void setRequestId(Long requestId) {
 		this.requestId = requestId;
 	}
-	
 	
 	public String getReason() {
 		return reason;
@@ -62,15 +60,6 @@ public class FlaggedJobs {
 	public void setAppliedAt(LocalDateTime appliedAt) {
 		this.appliedAt = appliedAt;
 	}
-	
-	
-    public JobEntity getJob() {
-        return job;
-    }
-
-    public void setJob(JobEntity job) {
-        this.job = job;
-    }
 
     public JobSeekerProfile getJobSeeker() {
         return jobSeeker;
@@ -79,5 +68,16 @@ public class FlaggedJobs {
     public void setJobSeeker(JobSeekerProfile jobSeeker) {
         this.jobSeeker = jobSeeker;
     }
-
+	public Status getStatus() {
+		return status;
+	}
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	public Long getJobId() {
+		return jobId;
+	}
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
+	}
 }

@@ -1,129 +1,73 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { RegisterRequest } from '../../../core/models/auth.model';
 
 @Component({
-    selector: 'app-register',
-    standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
-    template: `
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <h1>💼 Job Portal</h1>
-          <p>Create your account</p>
-        </div>
-
-        <div class="alert alert-success" *ngIf="successMessage">
-          {{ successMessage }}
-        </div>
-
-        <div class="alert alert-danger" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </div>
-
-        <form (ngSubmit)="onSubmit()" *ngIf="!successMessage">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input 
-              type="email" 
-              class="form-input" 
-              [(ngModel)]="email" 
-              name="email" 
-              placeholder="Enter your email"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input 
-              type="password" 
-              class="form-input" 
-              [(ngModel)]="password" 
-              name="password" 
-              placeholder="Create a password"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Confirm Password</label>
-            <input 
-              type="password" 
-              class="form-input" 
-              [(ngModel)]="confirmPassword" 
-              name="confirmPassword" 
-              placeholder="Confirm your password"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">I am a</label>
-            <select class="form-select" [(ngModel)]="role" name="role" required>
-              <option value="">Select your role</option>
-              <option value="JOB_SEEKER">Job Seeker - Looking for opportunities</option>
-              <option value="EMPLOYER">Employer - Hiring talent</option>
-            </select>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;" [disabled]="loading">
-            {{ loading ? 'Creating account...' : 'Create Account' }}
-          </button>
-        </form>
-
-        <div class="auth-footer">
-          Already have an account? <a routerLink="/login">Sign in</a>
-        </div>
-      </div>
-    </div>
-  `
+  selector: 'app-register',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-    email = '';
-    password = '';
-    confirmPassword = '';
-    role: 'JOB_SEEKER' | 'EMPLOYER' | '' = '';
-    loading = false;
-    errorMessage = '';
-    successMessage = '';
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-    constructor(private authService: AuthService, private router: Router) { }
+  name = '';
+  email = '';
+  password = '';
+  confirmPassword = '';
+  role: 'JOB_SEEKER' | 'EMPLOYER' = 'JOB_SEEKER';
+  loading = false;
+  error = '';
+  success = '';
 
-    onSubmit(): void {
-        if (this.password !== this.confirmPassword) {
-            this.errorMessage = 'Passwords do not match';
-            return;
-        }
+  onSubmit(): void {
+    this.error = '';
+    this.success = '';
 
-        if (!this.role) {
-            this.errorMessage = 'Please select a role';
-            return;
-        }
-
-        this.loading = true;
-        this.errorMessage = '';
-
-        this.authService.register({
-            email: this.email,
-            password: this.password,
-            role: this.role
-        }).subscribe({
-            next: (response) => {
-                this.loading = false;
-                if (this.role === 'EMPLOYER') {
-                    this.successMessage = 'Account created! Your employer account is pending approval. You can login to check status.';
-                } else {
-                    this.successMessage = 'Account created successfully! You can now login.';
-                }
-                setTimeout(() => {
-                    this.router.navigate(['/login']);
-                }, 3000);
-            },
-            error: (error) => {
-                this.loading = false;
-                this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
-            }
-        });
+    if (!this.name || !this.email || !this.password) {
+      this.error = 'Please fill in all fields';
+      return;
     }
+
+    if (this.password !== this.confirmPassword) {
+      this.error = 'Passwords do not match';
+      return;
+    }
+
+    if (this.password.length < 6) {
+      this.error = 'Password must be at least 6 characters';
+      return;
+    }
+
+    this.loading = true;
+
+    const request: RegisterRequest = {
+      name: this.name,
+      email: this.email,
+      password: this.password,
+      role: this.role
+    };
+
+    this.authService.register(request).subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (this.role === 'EMPLOYER') {
+          this.success = 'Registration successful! Let\'s complete your profile.';
+          setTimeout(() => this.router.navigate(['/employer-setup', response.userId]), 1500);
+        } else {
+          this.success = 'Registration successful! You can now login.';
+          setTimeout(() => this.router.navigate(['/login']), 2000);
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err.error?.message || 'Registration failed';
+      }
+    });
+  }
 }

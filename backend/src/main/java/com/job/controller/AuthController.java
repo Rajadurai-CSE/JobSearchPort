@@ -1,68 +1,58 @@
 package com.job.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.job.dto.auth.JwtResponse;
 import com.job.dto.auth.LoginRequest;
-import com.job.dto.auth.LoginResponse;
-import com.job.entity.registerentity.UserAuth;
-import com.job.enums.Approval_Status;
-import com.job.repository.UserAuthRepository;
-import com.job.security.JwtService;
+import com.job.dto.auth.RegisterRequest;
+import com.job.dto.auth.RegisterResponse;
+import com.job.dto.employer.EmpProfileUpdateDto;
+import com.job.dto.employer.EmployerDto;
+import com.job.entity.employer.Company;
+import com.job.service.AuthService;
+import com.job.service.EmployerService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private UserAuthRepository userAuthRepository;
+    private final AuthService authService;
+    private final EmployerService employerService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtService jwtService;
+    public AuthController(AuthService authService, EmployerService employerService) {
+        this.authService = authService;
+        this.employerService = employerService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        UserAuth user = userAuthRepository.findByEmail(request.getEmail())
-                .orElse(null);
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        String token = authService.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
 
-        if (user == null) {
-            LoginResponse errorResponse = new LoginResponse();
-            errorResponse.setMessage("Invalid email or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(request));
+    }
 
-        boolean passwordMatch = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if (!passwordMatch) {
-            LoginResponse errorResponse = new LoginResponse();
-            errorResponse.setMessage("Invalid email or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
+    // Public endpoints for employer setup (before login)
+    @GetMapping("/setup/companies")
+    public ResponseEntity<List<Company>> getCompaniesForSetup() {
+        return ResponseEntity.ok(employerService.getAllCompanies());
+    }
 
-        // Generate token for all users, but include status info
-        String token = jwtService.generateToken(user);
-        LoginResponse response = new LoginResponse(token, user.getUserid(), user.getEmail(), user.getRole(),
-                user.getStatus());
-
-        // Add appropriate message based on status
-        if (user.getStatus() == Approval_Status.PENDING) {
-            response.setMessage("Your profile is under verification. Please wait for admin approval.");
-        } else if (user.getStatus() == Approval_Status.REVOKED) {
-            response.setMessage("Your account has been revoked due to policy violations. It will be removed soon.");
-        } else if (user.getStatus() == Approval_Status.DENIED) {
-            response.setMessage("Your registration has been denied by the administrator.");
-        } else {
-            response.setMessage("Login successful");
-        }
-
-        return ResponseEntity.ok(response);
+    @PutMapping("/setup/employer-profile")
+    public ResponseEntity<EmployerDto> updateEmployerProfileForSetup(@RequestBody EmpProfileUpdateDto request) {
+        return ResponseEntity.ok(employerService.updateProfile(request));
     }
 }

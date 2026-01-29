@@ -1,0 +1,87 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>My Applications</h1>
+        <p>Track the status of your job applications</p>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Applications Table -->
+    <div *ngIf="!loading && applications.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Applied On</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let app of applications">
+                    <td>
+                        <a [routerLink]="['/jobseeker/jobs', app.jobId]">{{ app.jobTitle }}</a>
+                    </td>
+                    <td>{{ app.companyName }}</td>
+                    <td>{{ app.appliedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="getStageClass(app.stage)">{{ app.stage }}</span>
+                    </td>
+                    <td class="notes-cell">
+                        <span *ngIf="app.description" class="notes-text" [title]="app.description">
+                            {{ app.description.length > 50 ? (app.description | slice:0:50) + '...' : app.description }}
+                        </span>
+                        <span *ngIf="!app.description" class="text-muted">—</span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn btn-danger btn-sm" (click)="withdrawApplication(app)"
+                            *ngIf="app.stage === 'APPLIED'">
+                            Withdraw
+                        </button>
+                        <button class="btn btn-sm btn-outline" (click)="openFlagModal(app)" title="Report this job">
+                            🚩
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && applications.length === 0" class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3>No applications yet</h3>
+        <p>Start applying to jobs to see your applications here</p>
+        <a routerLink="/jobseeker/jobs" class="btn btn-primary mt-2">Browse Jobs</a>
+    </div>
+
+    <!-- Flag Modal -->
+    <div class="modal-overlay" *ngIf="showFlagModal" (click)="closeFlagModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>🚩 Report this Job</h3>
+            <p class="text-muted">Report "{{ selectedApp?.jobTitle }}" if you believe it violates our policies</p>
+            <div class="form-group">
+                <label class="form-label">Reason for reporting *</label>
+                <textarea class="form-control" [(ngModel)]="flagReason" rows="3"
+                    placeholder="Please describe why you're reporting this job..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeFlagModal()">Cancel</button>
+                <button class="btn btn-danger" (click)="submitFlag()" [disabled]="!flagReason.trim()">Submit
+                    Report</button>
+            </div>
+        </div>
+    </div>
+</div>

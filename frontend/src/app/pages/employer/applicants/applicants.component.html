@@ -1,0 +1,82 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1>Applicants</h1>
+            <p>Manage applications for this job</p>
+        </div>
+        <a routerLink="/employer/jobs" class="btn btn-outline">← Back to Jobs</a>
+    </div>
+
+    <!-- Toast -->
+    <div *ngIf="message" class="toast" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+        {{ message }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Applicants Table -->
+    <div *ngIf="!loading && applicants.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Resume</th>
+                    <th>Applied</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let app of applicants">
+                    <td>{{ app.jobSeekerName }}</td>
+                    <td>{{ app.jobSeekerEmail }}</td>
+                    <td>
+                        <a *ngIf="app.resumeUrl" [href]="app.resumeUrl" target="_blank"
+                            class="btn btn-sm btn-outline">📄 View</a>
+                        <span *ngIf="!app.resumeUrl" class="text-muted">-</span>
+                    </td>
+                    <td>{{ app.appliedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <select class="form-control status-select" [value]="app.stage"
+                            (change)="updateStatus(app, $any($event.target).value)">
+                            <option *ngFor="let stage of stages" [value]="stage">{{ stage }}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" (click)="openFlagModal(app)">🚩 Flag</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && applicants.length === 0" class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3>No applicants yet</h3>
+        <p>Once candidates apply, they will appear here</p>
+    </div>
+
+    <!-- Flag Modal -->
+    <div class="modal-overlay" *ngIf="showFlagModal" (click)="closeFlagModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Report Applicant</h3>
+            <p class="text-muted">Report {{ selectedApplicant?.jobSeekerName }} for inappropriate behavior.</p>
+            <div class="form-group">
+                <label class="form-label">Reason</label>
+                <textarea class="form-control" [(ngModel)]="flagReason" rows="4"
+                    placeholder="Describe the issue..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeFlagModal()">Cancel</button>
+                <button class="btn btn-danger" (click)="submitFlag()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+</div>

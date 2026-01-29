@@ -24,7 +24,7 @@ public class JobCreateRequestDto {
     private String employmentType;
 
     private LocalDateTime createdAt;
-    private LocalDateTime applicationDeadline;
+    private LocalDate applicationDeadline;
 
     // getters and setters
     public Long getUserId() {
@@ -87,10 +87,10 @@ public class JobCreateRequestDto {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     } 
-    public LocalDateTime getApplicationDeadline() {
+    public LocalDate getApplicationDeadline() {
         return applicationDeadline;
     }
-    public void setApplicationDeadline(LocalDateTime applicationDeadline) {
+    public void setApplicationDeadline(LocalDate applicationDeadline) {
         this.applicationDeadline = applicationDeadline;
     }
 

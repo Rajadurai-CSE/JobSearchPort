@@ -1,121 +1,156 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { EmpProfileUpdateRequest, Company, CompanyDto } from '../../../core/models/user.model';
 
 @Component({
-    selector: 'app-employer-profile',
-    standalone: true,
-    imports: [CommonModule, FormsModule, NavbarComponent],
-    template: `
-    <app-navbar></app-navbar>
-    <div class="page-container">
-      <div class="page-header">
-        <h1>Employer Profile</h1>
-        <p>Manage your company information</p>
-      </div>
-
-      <div class="card" style="max-width: 800px;">
-        <form (ngSubmit)="saveProfile()">
-          <h3>Personal Information</h3>
-          <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="form-input" [(ngModel)]="profile.name" name="name" placeholder="Your name">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Contact Number</label>
-              <input type="tel" class="form-input" [(ngModel)]="profile.contactNo" name="contactNo" placeholder="+1 234 567 8900">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Verification Document URL</label>
-            <input type="url" class="form-input" [(ngModel)]="profile.employerVerificationUrl" name="employerVerificationUrl" placeholder="https://...">
-          </div>
-
-          <hr style="margin: 2rem 0;">
-          
-          <h3>Company Information</h3>
-          <div class="form-group">
-            <label class="form-label">Company Name</label>
-            <input type="text" class="form-input" [(ngModel)]="profile.companyName" name="companyName" placeholder="Your company name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Company Website</label>
-            <input type="url" class="form-input" [(ngModel)]="profile.companyURL" name="companyURL" placeholder="https://yourcompany.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Company Description</label>
-            <textarea class="form-textarea" [(ngModel)]="profile.companyDescription" name="companyDescription" placeholder="Describe your company..."></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving">
-            {{ saving ? 'Saving...' : 'Save Profile' }}
-          </button>
-        </form>
-
-        <div *ngIf="message" class="alert mt-3" [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
-          {{ message }}
-        </div>
-      </div>
-    </div>
-  `
+  selector: 'app-employer-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule, NavbarComponent],
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
 })
 export class EmployerProfileComponent implements OnInit {
-    profile: any = {
-        userId: null,
-        name: '',
-        contactNo: '',
-        employerVerificationUrl: '',
-        companyName: '',
-        companyURL: '',
-        companyDescription: ''
+  private apiService = inject(ApiService);
+  private authService = inject(AuthService);
+
+  saving = false;
+  loading = true;
+  message = '';
+  messageType = 'success';
+
+  // Form data
+  formData = {
+    name: '',
+    contactNo: '',
+    employerVerificationUrl: ''
+  };
+
+  // Company selection
+  companies: Company[] = [];
+  filteredCompanies: Company[] = [];
+  selectedCompany: Company | null = null;
+  companySearchQuery = '';
+  showCompanyDropdown = false;
+  createNewCompany = false;
+
+  // New company form
+  newCompany: CompanyDto = {
+    companyName: '',
+    companyURL: '',
+    companyDescription: ''
+  };
+
+  ngOnInit(): void {
+    this.loadCompanies();
+  }
+
+  loadCompanies(): void {
+    this.apiService.getAllCompanies().subscribe({
+      next: (companies) => {
+        this.companies = companies;
+        this.filteredCompanies = companies;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  onCompanySearch(): void {
+    this.showCompanyDropdown = true;
+    if (this.companySearchQuery.trim() === '') {
+      this.filteredCompanies = this.companies;
+    } else {
+      this.filteredCompanies = this.companies.filter(c =>
+        c.companyName.toLowerCase().includes(this.companySearchQuery.toLowerCase())
+      );
+    }
+  }
+
+  selectCompany(company: Company): void {
+    this.selectedCompany = company;
+    this.companySearchQuery = company.companyName;
+    this.showCompanyDropdown = false;
+    this.createNewCompany = false;
+  }
+
+  clearCompanySelection(): void {
+    this.selectedCompany = null;
+    this.companySearchQuery = '';
+  }
+
+  toggleNewCompanyForm(): void {
+    this.createNewCompany = !this.createNewCompany;
+    if (this.createNewCompany) {
+      this.selectedCompany = null;
+      this.companySearchQuery = '';
+    }
+  }
+
+  saveProfile(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    if (!this.formData.name.trim()) {
+      this.showMessage('Name is required', 'error');
+      return;
+    }
+
+    // Must have either selected company or new company details
+    if (!this.selectedCompany && !this.createNewCompany) {
+      this.showMessage('Please select a company or create a new one', 'error');
+      return;
+    }
+
+    if (this.createNewCompany && !this.newCompany.companyName.trim()) {
+      this.showMessage('Company name is required', 'error');
+      return;
+    }
+
+    this.saving = true;
+
+    const request: EmpProfileUpdateRequest = {
+      user_id: userId,
+      name: this.formData.name.trim(),
+      contactNo: this.formData.contactNo || undefined,
+      employerVerificationUrl: this.formData.employerVerificationUrl || undefined
     };
-    saving = false;
-    message = '';
-    messageType = 'success';
 
-    constructor(private apiService: ApiService, private authService: AuthService) { }
+    if (this.selectedCompany) {
+      request.companyId = this.selectedCompany.companyId;
+    } else if (this.createNewCompany) {
+      request.companyDetails = {
+        companyName: this.newCompany.companyName.trim(),
+        companyURL: this.newCompany.companyURL || undefined,
+        companyDescription: this.newCompany.companyDescription || undefined
+      };
+    }
 
-    ngOnInit(): void {
-        const userId = this.authService.getUserId();
-        if (userId) {
-            this.profile.userId = userId;
+    this.apiService.updateEmployerProfile(request).subscribe({
+      next: () => {
+        this.saving = false;
+        this.showMessage('Profile updated successfully', 'success');
+        // Reload companies if a new one was created
+        if (this.createNewCompany) {
+          this.loadCompanies();
+          this.createNewCompany = false;
         }
-    }
+      },
+      error: (err) => {
+        this.saving = false;
+        this.showMessage(err.error?.message || 'Failed to update profile', 'error');
+      }
+    });
+  }
 
-    saveProfile(): void {
-        this.saving = true;
-
-        const payload = {
-            userId: this.profile.userId,
-            name: this.profile.name,
-            contactNo: this.profile.contactNo,
-            employerVerificationUrl: this.profile.employerVerificationUrl,
-            companyDetails: {
-                companyName: this.profile.companyName,
-                companyURL: this.profile.companyURL,
-                companyDescription: this.profile.companyDescription
-            }
-        };
-
-        this.apiService.updateEmployerProfile(payload).subscribe({
-            next: () => {
-                this.saving = false;
-                this.showMessage('Profile saved successfully!', 'success');
-            },
-            error: () => {
-                this.saving = false;
-                this.showMessage('Error saving profile', 'error');
-            }
-        });
-    }
-
-    private showMessage(msg: string, type: string): void {
-        this.message = msg;
-        this.messageType = type;
-        setTimeout(() => this.message = '', 3000);
-    }
+  private showMessage(msg: string, type: string): void {
+    this.message = msg;
+    this.messageType = type;
+    setTimeout(() => this.message = '', 3000);
+  }
 }

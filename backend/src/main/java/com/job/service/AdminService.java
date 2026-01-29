@@ -2,21 +2,22 @@ package com.job.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.job.dto.Admin.DisplayEmployerProfileDto;
-import com.job.dto.Admin.DisplayReportedJS;
-import com.job.dto.Admin.FlaggedJobDto;
-import com.job.dto.Admin.SystemStatisticsDto;
-import com.job.dto.Admin.UserDto;
+import com.job.dto.admin.DisplayEmployerProfileDto;
+import com.job.dto.admin.DisplayReportedJS;
+import com.job.dto.admin.FlaggedJobDto;
+import com.job.dto.admin.SystemStatisticsDto;
+import com.job.dto.admin.UserDto;
 import com.job.entity.employer.EmployerProfile;
 import com.job.entity.employer.FlaggedJobSeekers;
 import com.job.entity.job.FlaggedJobs;
+import com.job.entity.jobseeker.JobSeekerProfile;
 import com.job.entity.registerentity.UserAuth;
 import com.job.enums.Approval_Status;
 import com.job.enums.Role;
+import com.job.exceptions.InvalidEmployerOperationException;
+import com.job.exceptions.UserNotFoundException;
 import com.job.mapper.AdminMapper;
 import com.job.repository.UserAuthRepository;
 import com.job.repository.employer.EmployerProfileRepo;
@@ -25,6 +26,7 @@ import com.job.repository.job.JobApplicationRepo;
 import com.job.repository.job.JobEntityRepo;
 import com.job.repository.jobseeker.FlaggedJobsRepo;
 import com.job.repository.jobseeker.JobSeekerProfileRepo;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AdminService {
@@ -50,13 +52,11 @@ public class AdminService {
 	@Autowired
 	private FlaggedJobsRepo flaggedJobsRepo;
 
-	// Get all flagged job seekers
 	public List<DisplayReportedJS> getService() {
 		List<FlaggedJobSeekers> users = flagJobSeekersRepo.findAll();
 		return AdminMapper.convertEntitytoDtoList(users);
 	}
 
-	// Update action on flagged job seeker
 	public DisplayReportedJS updateReportedJobSeeker(Long requestId, String action_taken) {
 		FlaggedJobSeekers f = flagJobSeekersRepo.findById(requestId)
 				.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
@@ -65,19 +65,50 @@ public class AdminService {
 		return AdminMapper.convertEntitytoDto(saved);
 	}
 
-	// Get all employers for approval
 	public List<DisplayEmployerProfileDto> getAllEmployers() {
 		List<EmployerProfile> employers = employerProfileRepo.findAll();
 		return AdminMapper.convertEmployerToDtoList(employers);
 	}
 
-	// Approve employer
+    public void ignoreFlag(Long flagId) {
+
+        FlaggedJobs flag = flaggedJobsRepo.findById(flagId)
+                .orElseThrow(() -> new RuntimeException("Flag not found with id: " + flagId));
+
+        flag.setStatus(FlaggedJobs.Status.IGNORED);
+        flaggedJobsRepo.save(flag);
+    }
+
+	@Transactional
+	public void deleteJobUsingFlagId(Long flagId) {
+		FlaggedJobs flag = flaggedJobsRepo.findById(flagId)
+				.orElseThrow(() -> new RuntimeException("Flag not found with id: " + flagId));
+
+		Long jobId = flag.getJobId();
+
+		if (jobId == null) {
+			throw new RuntimeException("No jobId associated with this flag");
+		}
+
+		List<FlaggedJobs> allFlags = flaggedJobsRepo.findByJobId(jobId);
+		for (FlaggedJobs f : allFlags) {
+			f.setStatus(FlaggedJobs.Status.DELETED);
+		}
+
+		flaggedJobsRepo.saveAll(allFlags);
+
+		if (!jobEntityRepo.existsById(jobId)) {
+			throw new RuntimeException("Job not found with id: " + jobId);
+		}
+		jobEntityRepo.deleteById(jobId);
+	}
+
 	public String approveEmployer(Long userId) {
 		UserAuth user = userAuthRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("Employer not found"));
+				.orElseThrow(() -> new UserNotFoundException("Employer not found"));
 
 		if (user.getRole() != Role.EMPLOYER) {
-			throw new RuntimeException("User is not an employer");
+			throw new InvalidEmployerOperationException("User is not an employer");
 		}
 
 		user.setStatus(Approval_Status.APPROVED);
@@ -85,13 +116,12 @@ public class AdminService {
 		return "Employer approved successfully";
 	}
 
-	// Deny employer
 	public String denyEmployer(Long userId) {
 		UserAuth user = userAuthRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("Employer not found"));
+				.orElseThrow(() -> new UserNotFoundException("Employer not found"));
 
 		if (user.getRole() != Role.EMPLOYER) {
-			throw new RuntimeException("User is not an employer");
+			throw new InvalidEmployerOperationException("User is not an employer");
 		}
 
 		user.setStatus(Approval_Status.DENIED);
@@ -99,20 +129,34 @@ public class AdminService {
 		return "Employer denied successfully";
 	}
 
-	// Revoke user access
+	@Transactional
 	public String revokeUser(Long userId) {
-		UserAuth user = userAuthRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("User not found"));
 
-		user.setStatus(Approval_Status.REVOKED);
-		userAuthRepository.save(user);
-		return "User access revoked successfully";
+	    UserAuth user = userAuthRepository.findById(userId)
+	            .orElseThrow(() -> new RuntimeException("User not found"));
+
+	    user.setStatus(Approval_Status.REVOKED);
+
+	    if (user.getRole() == Role.EMPLOYER) {
+	        EmployerProfile employer = user.getEmployerProfile();
+	        if (employer != null) {
+	            employerProfileRepo.delete(employer);
+	            user.setEmployerProfile(null);
+	        }
+
+	    } else if (user.getRole() == Role.JOB_SEEKER) {
+	        JobSeekerProfile seeker = user.getJobseeker();
+	        if (seeker != null) {
+	            jobSeekerProfileRepo.delete(seeker);
+	            user.setJobseeker(null);
+	        }
+	    }
+	    userAuthRepository.save(user);
+	    return "User revoked and profile deleted";
 	}
 
-	// Get system statistics
 	public SystemStatisticsDto getSystemStatistics() {
 		SystemStatisticsDto stats = new SystemStatisticsDto();
-
 		List<UserAuth> allUsers = userAuthRepository.findAll();
 
 		long jobSeekers = allUsers.stream()
@@ -143,7 +187,6 @@ public class AdminService {
 		return stats;
 	}
 
-	// Get all users
 	public List<UserDto> getAllUsers() {
 		List<UserAuth> users = userAuthRepository.findAll();
 		List<UserDto> dtos = new ArrayList<>();
@@ -154,64 +197,43 @@ public class AdminService {
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
 			dto.setStatus(user.getStatus());
-
-			// Get name from profile if available
 			if (user.getRole() == Role.JOB_SEEKER && user.getJobseeker() != null) {
 				dto.setName(user.getJobseeker().getName());
 			} else if (user.getRole() == Role.EMPLOYER && user.getEmployerProfile() != null) {
 				dto.setName(user.getEmployerProfile().getName());
+			} else{
+				dto.setName("Admin");
 			}
-
+			
 			dtos.add(dto);
 		}
 
 		return dtos;
 	}
 
-	// Get all flagged jobs
 	public List<FlaggedJobDto> getFlaggedJobs() {
-		List<FlaggedJobs> flaggedJobs = flaggedJobsRepo.findAll();
-		List<FlaggedJobDto> dtos = new ArrayList<>();
 
-		for (FlaggedJobs flag : flaggedJobs) {
-			FlaggedJobDto dto = new FlaggedJobDto();
-			dto.setRequestId(flag.getRequestId());
-			dto.setJobId(flag.getJob() != null ? flag.getJob().getJobId() : null);
-			dto.setJobSeekerId(flag.getJobSeeker() != null ? flag.getJobSeeker().getUserId() : null);
-			dto.setReason(flag.getReason());
-			dto.setAppliedAt(flag.getAppliedAt());
-			dtos.add(dto);
-		}
+    List<FlaggedJobs> flaggedJobs = flaggedJobsRepo.findAll();
+    List<FlaggedJobDto> dtos = new ArrayList<>();
 
-		return dtos;
-	}
+    for (FlaggedJobs flag : flaggedJobs) {
+        FlaggedJobDto dto = new FlaggedJobDto();
+        dto.setRequestId(flag.getRequestId());
+        dto.setJobId(flag.getJobId());
+        dto.setJobSeekerId(
+                flag.getJobSeeker() != null
+                        ? flag.getJobSeeker().getUserId()
+                        : null
+        );
+        dto.setReason(flag.getReason());
+        dto.setAppliedAt(flag.getAppliedAt());
+        dto.setStatus(FlaggedJobDto.Status.valueOf(flag.getStatus().name())); 
+        dtos.add(dto);
+    }
 
-	// Update action on flagged job
-	public FlaggedJobDto updateFlaggedJob(Long requestId, String actionTaken) {
-		FlaggedJobs flag = flaggedJobsRepo.findById(requestId)
-				.orElseThrow(() -> new RuntimeException("Flagged job not found with id: " + requestId));
+    return dtos;
+}
 
-		// If action is to revoke, update the employer status
-		if ("REVOKE_EMPLOYER".equals(actionTaken) && flag.getJob() != null) {
-			EmployerProfile employer = flag.getJob().getEmployerProfile();
-			if (employer != null && employer.getUserAuth() != null) {
-				employer.getUserAuth().setStatus(Approval_Status.REVOKED);
-				userAuthRepository.save(employer.getUserAuth());
-			}
-		}
-
-		FlaggedJobDto dto = new FlaggedJobDto();
-		dto.setRequestId(flag.getRequestId());
-		dto.setJobId(flag.getJob() != null ? flag.getJob().getJobId() : null);
-		dto.setJobSeekerId(flag.getJobSeeker() != null ? flag.getJobSeeker().getUserId() : null);
-		dto.setReason(flag.getReason());
-		dto.setAppliedAt(flag.getAppliedAt());
-		dto.setActionTaken(actionTaken);
-
-		return dto;
-	}
-
-	// Get revoked users
 	public List<UserDto> getRevokedUsers() {
 		List<UserAuth> users = userAuthRepository.findAll();
 		List<UserDto> dtos = new ArrayList<>();
@@ -230,7 +252,6 @@ public class AdminService {
 		return dtos;
 	}
 
-	// Delete revoked user
 	public String deleteRevokedUser(Long userId) {
 		UserAuth user = userAuthRepository.findById(userId)
 				.orElseThrow(() -> new RuntimeException("User not found"));

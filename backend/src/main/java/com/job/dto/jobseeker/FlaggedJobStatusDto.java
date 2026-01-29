@@ -5,9 +5,13 @@ import java.time.LocalDateTime;
 public class FlaggedJobStatusDto {
     private Long requestId;
     private Long jobId;
-    private String jobTitle;
     private String reason;
     private LocalDateTime appliedAt;
+    private Status status = Status.PENDING;
+
+    public enum Status {
+        PENDING, DELETED, IGNORED
+    }
 
     public Long getRequestId() {
         return requestId;
@@ -25,14 +29,6 @@ public class FlaggedJobStatusDto {
         this.jobId = jobId;
     }
 
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
-
     public String getReason() {
         return reason;
     }
@@ -47,5 +43,13 @@ public class FlaggedJobStatusDto {
 
     public void setAppliedAt(LocalDateTime appliedAt) {
         this.appliedAt = appliedAt;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
