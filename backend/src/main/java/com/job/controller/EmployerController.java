@@ -39,6 +39,11 @@ public class EmployerController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<EmployerDto> getProfile(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.getProfile(userId));
+    }
+
     @GetMapping("/companies/fetch/{id}")
     public ResponseEntity<Company> fetchCompanyData(@PathVariable Long id) {
         Company company = service.getCompanyById(id);
@@ -129,5 +134,11 @@ public class EmployerController {
             @PathVariable Long employerId) {
         List<EmployerJobApplicationDto> res = service.getJobApplications(jobId, employerId);
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/flag-requests/{employerId}")
+    public ResponseEntity<List<com.job.dto.employer.FlaggedJobSeekerDto>> getMyFlagRequests(
+            @PathVariable Long employerId) {
+        return ResponseEntity.ok(service.getMyFlaggedJobSeekers(employerId));
     }
 }

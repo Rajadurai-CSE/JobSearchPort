@@ -58,7 +58,7 @@ export class RegisterComponent {
         this.loading = false;
         if (this.role === 'EMPLOYER') {
           this.success = 'Registration successful! Let\'s complete your profile.';
-          setTimeout(() => this.router.navigate(['/employer-setup', response.userId]), 1500);
+          setTimeout(() => this.router.navigate(['/employer-setup', response.userId], { state: { name: this.name } }), 1500);
         } else {
           this.success = 'Registration successful! You can now login.';
           setTimeout(() => this.router.navigate(['/login']), 2000);

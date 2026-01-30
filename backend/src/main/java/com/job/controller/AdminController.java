@@ -45,16 +45,16 @@ public class AdminController {
 	}
 
 	@PutMapping("/flagged-jobs/{flagId}/ignore")
-    public ResponseEntity<String> ignoreFlaggedJob(@PathVariable Long flagId) {
-        adminService.ignoreFlag(flagId);
-        return ResponseEntity.ok("Flag has been ignored successfully");
-    }
+	public ResponseEntity<String> ignoreFlaggedJob(@PathVariable Long flagId) {
+		adminService.ignoreFlag(flagId);
+		return ResponseEntity.ok("Flag has been ignored successfully");
+	}
 
-    @PutMapping("/flagged-jobs/{flagId}/delete")
-    public ResponseEntity<String> deleteFlaggedJob(@PathVariable Long flagId) {
-        adminService.deleteJobUsingFlagId(flagId);
-        return ResponseEntity.ok("Job has been deleted successfully");
-    }
+	@PutMapping("/flagged-jobs/{flagId}/delete")
+	public ResponseEntity<String> deleteFlaggedJob(@PathVariable Long flagId) {
+		adminService.deleteJobUsingFlagId(flagId);
+		return ResponseEntity.ok("Job has been deleted successfully");
+	}
 
 	@GetMapping("/employers")
 	public ResponseEntity<List<DisplayEmployerProfileDto>> getAllEmployers() {
@@ -84,6 +84,11 @@ public class AdminController {
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<String> deleteUser(@PathVariable Long id) {
 		return ResponseEntity.ok(adminService.deleteRevokedUser(id));
+	}
+
+	@PutMapping("/users/{id}/reinstate")
+	public ResponseEntity<String> reinstateUser(@PathVariable Long id) {
+		return ResponseEntity.ok(adminService.reinstateUser(id));
 	}
 
 	@GetMapping("/users")

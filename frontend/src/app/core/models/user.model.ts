@@ -12,7 +12,9 @@ export interface DisplayEmployerProfile {
     userId: number;
     email: string;
     name: string;
-    companyName: string;
+    contactNo: string;
+    employerVerificationUrl: string;
+    company: Company;
     status: string;
 }
 
@@ -51,7 +53,7 @@ export interface JSProfile {
     userId: number;
     email: string;
     name: string;
-    phone: string;
+    phoneNo: string;
     address: string;
     skills: string;
     experience: string;
@@ -62,7 +64,7 @@ export interface JSProfile {
 export interface JSProfileUpdateRequest {
     userId: number;
     name: string;
-    phone: string;
+    phoneNo: string;
     address: string;
     skills: string;
     experience: string;
@@ -71,13 +73,13 @@ export interface JSProfileUpdateRequest {
 }
 
 export interface EmployerProfile {
-    id: number;
     userId: number;
     email: string;
     name: string;
-    phone: string;
-    designation: string;
+    contactNo: string;
+    employerVerificationUrl: string;
     companyId: number;
+    company: CompanyDto;
 }
 
 export interface EmpProfileUpdateRequest {

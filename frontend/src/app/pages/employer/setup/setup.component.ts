@@ -49,6 +49,11 @@ export class EmployerSetupComponent implements OnInit {
         const id = this.route.snapshot.paramMap.get('userId');
         if (id) {
             this.userId = +id;
+            // Autofill name from registration state if available
+            const state = history.state;
+            if (state && state.name) {
+                this.formData.name = state.name;
+            }
             this.loadCompanies();
         } else {
             this.router.navigate(['/login']);

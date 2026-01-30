@@ -1,0 +1,58 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1>🚩 My Flag Requests</h1>
+            <p>Track the status of job seekers you've reported</p>
+        </div>
+        <a routerLink="/employer/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Flag Requests Table -->
+    <div *ngIf="!loading && flagRequests.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Seeker Name</th>
+                    <th>Email</th>
+                    <th>Reason</th>
+                    <th>Reported On</th>
+                    <th>Action Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let flag of flagRequests">
+                    <td class="name-cell">{{ flag.jobSeekerName }}</td>
+                    <td>{{ flag.jobSeekerEmail }}</td>
+                    <td class="reason-cell">{{ flag.reason }}</td>
+                    <td>{{ flag.flaggedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="getStatusClass(flag.actionTaken)">
+                            {{ getStatusLabel(flag.actionTaken) }}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && flagRequests.length === 0" class="empty-state">
+        <div class="empty-state-icon">🚩</div>
+        <h3>No Flag Requests</h3>
+        <p>You haven't reported any job seekers yet</p>
+    </div>
+
+    <!-- Info Box -->
+    <div *ngIf="!loading && flagRequests.length > 0" class="info-box">
+        <h4>ℹ️ About Flag Requests</h4>
+        <p>When you report a job seeker, the admin will review your request and take appropriate action. The "Action
+            Taken" column shows the admin's response to your report.</p>
+    </div>
+</div>

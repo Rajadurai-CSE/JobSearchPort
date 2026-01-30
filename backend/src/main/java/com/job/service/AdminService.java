@@ -70,14 +70,14 @@ public class AdminService {
 		return AdminMapper.convertEmployerToDtoList(employers);
 	}
 
-    public void ignoreFlag(Long flagId) {
+	public void ignoreFlag(Long flagId) {
 
-        FlaggedJobs flag = flaggedJobsRepo.findById(flagId)
-                .orElseThrow(() -> new RuntimeException("Flag not found with id: " + flagId));
+		FlaggedJobs flag = flaggedJobsRepo.findById(flagId)
+				.orElseThrow(() -> new RuntimeException("Flag not found with id: " + flagId));
 
-        flag.setStatus(FlaggedJobs.Status.IGNORED);
-        flaggedJobsRepo.save(flag);
-    }
+		flag.setStatus(FlaggedJobs.Status.IGNORED);
+		flaggedJobsRepo.save(flag);
+	}
 
 	@Transactional
 	public void deleteJobUsingFlagId(Long flagId) {
@@ -132,27 +132,27 @@ public class AdminService {
 	@Transactional
 	public String revokeUser(Long userId) {
 
-	    UserAuth user = userAuthRepository.findById(userId)
-	            .orElseThrow(() -> new RuntimeException("User not found"));
+		UserAuth user = userAuthRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
-	    user.setStatus(Approval_Status.REVOKED);
+		user.setStatus(Approval_Status.REVOKED);
 
-	    if (user.getRole() == Role.EMPLOYER) {
-	        EmployerProfile employer = user.getEmployerProfile();
-	        if (employer != null) {
-	            employerProfileRepo.delete(employer);
-	            user.setEmployerProfile(null);
-	        }
+		if (user.getRole() == Role.EMPLOYER) {
+			EmployerProfile employer = user.getEmployerProfile();
+			if (employer != null) {
+				employerProfileRepo.delete(employer);
+				user.setEmployerProfile(null);
+			}
 
-	    } else if (user.getRole() == Role.JOB_SEEKER) {
-	        JobSeekerProfile seeker = user.getJobseeker();
-	        if (seeker != null) {
-	            jobSeekerProfileRepo.delete(seeker);
-	            user.setJobseeker(null);
-	        }
-	    }
-	    userAuthRepository.save(user);
-	    return "User revoked and profile deleted";
+		} else if (user.getRole() == Role.JOB_SEEKER) {
+			JobSeekerProfile seeker = user.getJobseeker();
+			if (seeker != null) {
+				jobSeekerProfileRepo.delete(seeker);
+				user.setJobseeker(null);
+			}
+		}
+		userAuthRepository.save(user);
+		return "User revoked and profile deleted";
 	}
 
 	public SystemStatisticsDto getSystemStatistics() {
@@ -201,10 +201,10 @@ public class AdminService {
 				dto.setName(user.getJobseeker().getName());
 			} else if (user.getRole() == Role.EMPLOYER && user.getEmployerProfile() != null) {
 				dto.setName(user.getEmployerProfile().getName());
-			} else{
+			} else {
 				dto.setName("Admin");
 			}
-			
+
 			dtos.add(dto);
 		}
 
@@ -213,26 +213,25 @@ public class AdminService {
 
 	public List<FlaggedJobDto> getFlaggedJobs() {
 
-    List<FlaggedJobs> flaggedJobs = flaggedJobsRepo.findAll();
-    List<FlaggedJobDto> dtos = new ArrayList<>();
+		List<FlaggedJobs> flaggedJobs = flaggedJobsRepo.findAll();
+		List<FlaggedJobDto> dtos = new ArrayList<>();
 
-    for (FlaggedJobs flag : flaggedJobs) {
-        FlaggedJobDto dto = new FlaggedJobDto();
-        dto.setRequestId(flag.getRequestId());
-        dto.setJobId(flag.getJobId());
-        dto.setJobSeekerId(
-                flag.getJobSeeker() != null
-                        ? flag.getJobSeeker().getUserId()
-                        : null
-        );
-        dto.setReason(flag.getReason());
-        dto.setAppliedAt(flag.getAppliedAt());
-        dto.setStatus(FlaggedJobDto.Status.valueOf(flag.getStatus().name())); 
-        dtos.add(dto);
-    }
+		for (FlaggedJobs flag : flaggedJobs) {
+			FlaggedJobDto dto = new FlaggedJobDto();
+			dto.setRequestId(flag.getRequestId());
+			dto.setJobId(flag.getJobId());
+			dto.setJobSeekerId(
+					flag.getJobSeeker() != null
+							? flag.getJobSeeker().getUserId()
+							: null);
+			dto.setReason(flag.getReason());
+			dto.setAppliedAt(flag.getAppliedAt());
+			dto.setStatus(FlaggedJobDto.Status.valueOf(flag.getStatus().name()));
+			dtos.add(dto);
+		}
 
-    return dtos;
-}
+		return dtos;
+	}
 
 	public List<UserDto> getRevokedUsers() {
 		List<UserAuth> users = userAuthRepository.findAll();
@@ -262,5 +261,38 @@ public class AdminService {
 
 		userAuthRepository.delete(user);
 		return "User deleted successfully";
+	}
+
+	@Transactional
+	public String reinstateUser(Long userId) {
+		UserAuth user = userAuthRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		if (user.getStatus() != Approval_Status.REVOKED) {
+			throw new RuntimeException("Can only reinstate users with REVOKED status");
+		}
+
+		// Set status back to APPROVED
+		user.setStatus(Approval_Status.APPROVED);
+
+		// Re-create profile based on role (user will need to fill in details later)
+		if (user.getRole() == Role.EMPLOYER && user.getEmployerProfile() == null) {
+			EmployerProfile profile = new EmployerProfile();
+			profile.setName("");
+			profile.setEmail(user.getEmail());
+			profile.setUserId(user.getUserid());
+			profile.setUserAuth(user);
+			user.setEmployerProfile(profile);
+		} else if (user.getRole() == Role.JOB_SEEKER && user.getJobseeker() == null) {
+			JobSeekerProfile profile = new JobSeekerProfile();
+			profile.setName("");
+			profile.setEmail(user.getEmail());
+			profile.setUserId(user.getUserid());
+			profile.setUserAuth(user);
+			user.setJobseeker(profile);
+		}
+
+		userAuthRepository.save(user);
+		return "User reinstated successfully. User must complete their profile.";
 	}
 }

@@ -30,6 +30,11 @@ export class ApplicantsComponent implements OnInit {
   selectedApplicant: EmployerJobApplication | null = null;
   flagReason = '';
 
+  // Status update modal
+  showStatusModal = false;
+  pendingStatus = '';
+  statusNotes = '';
+
   stages = ['APPLIED', 'SHORTLISTED', 'INTERVIEW', 'HIRED', 'REJECTED'];
 
   ngOnInit(): void {
@@ -54,18 +59,36 @@ export class ApplicantsComponent implements OnInit {
   }
 
   updateStatus(applicant: EmployerJobApplication, newStage: string): void {
-    if (!this.jobId) return;
+    // Open modal to add notes
+    this.selectedApplicant = applicant;
+    this.pendingStatus = newStage;
+    this.showStatusModal = true;
+  }
+
+  closeStatusModal(): void {
+    this.showStatusModal = false;
+    this.selectedApplicant = null;
+    this.pendingStatus = '';
+    this.statusNotes = '';
+  }
+
+  submitStatusUpdate(): void {
+    if (!this.jobId || !this.selectedApplicant) return;
 
     const request: JobApplicationUpdate = {
       jobId: this.jobId,
-      jobSeekerId: applicant.jobSeekerId,
-      stage: newStage
+      jobSeekerId: this.selectedApplicant.jobSeekerId,
+      stage: this.pendingStatus,
+      notes: this.statusNotes.trim() || undefined
     };
 
     this.apiService.updateApplicantStatus(request).subscribe({
       next: () => {
-        applicant.stage = newStage;
+        if (this.selectedApplicant) {
+          this.selectedApplicant.stage = this.pendingStatus;
+        }
         this.showMessage('Status updated', 'success');
+        this.closeStatusModal();
       },
       error: () => this.showMessage('Failed to update', 'error')
     });

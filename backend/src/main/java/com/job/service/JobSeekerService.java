@@ -59,7 +59,9 @@ public class JobSeekerService {
         profile.setCertificationsUrl(req.getCertificationsUrl());
         profile.setPhoneNo(req.getPhoneNo());
         profile.setLocation(req.getLocation());
-        profile.setExperience(req.getExperience());
+        if (req.getExperience() != null) {
+            profile.setExperience(req.getExperience());
+        }
         jobSeekerProfileRepo.save(profile);
         return JobSeekerMapper.toDto(profile);
     }
@@ -202,6 +204,15 @@ public class JobSeekerService {
 
         return allJobs.stream()
                 .filter(job -> {
+                    // Filter by title
+                    if (req.getTitle() != null && !req.getTitle().isEmpty()) {
+                        if (job.getTitle() == null ||
+                                !job.getTitle().toLowerCase().contains(req.getTitle().toLowerCase())) {
+                            return false;
+                        }
+                    }
+
+                    // Filter by location
                     if (req.getLocation() != null && !req.getLocation().isEmpty()) {
                         if (job.getLocation() == null ||
                                 !job.getLocation().toLowerCase().contains(req.getLocation().toLowerCase())) {
@@ -209,6 +220,7 @@ public class JobSeekerService {
                         }
                     }
 
+                    // Filter by skills
                     if (req.getSkills() != null && !req.getSkills().isEmpty()) {
                         if (job.getRequiredSkills() == null) {
                             return false;
@@ -226,12 +238,14 @@ public class JobSeekerService {
                             return false;
                     }
 
+                    // Filter by minimum experience
                     if (req.getMinExperience() != null) {
                         if (job.getMinExperience() > req.getMinExperience()) {
                             return false;
                         }
                     }
 
+                    // Filter by salary range
                     if (req.getSalaryRange() != null && !req.getSalaryRange().isEmpty()) {
                         if (job.getSalaryRange() == null ||
                                 !job.getSalaryRange().toLowerCase().contains(req.getSalaryRange().toLowerCase())) {
@@ -271,5 +285,20 @@ public class JobSeekerService {
         application.setUpdatedAt(LocalDate.now());
         application.setResumeUrl(resumeUrl);
         jobApplicationRepo.save(application);
+    }
+
+    public List<com.job.dto.jobseeker.FlaggedJobDto> getMyFlaggedJobs(Long userId) {
+        List<FlaggedJobs> flags = flaggedJobsRepo.findByJobSeeker_UserId(userId);
+        return flags.stream().map(flag -> {
+            com.job.dto.jobseeker.FlaggedJobDto dto = new com.job.dto.jobseeker.FlaggedJobDto();
+            dto.setRequestId(flag.getRequestId());
+            dto.setJobId(flag.getJobId());
+            dto.setReason(flag.getReason());
+            dto.setStatus(flag.getStatus().name());
+            dto.setFlaggedAt(flag.getAppliedAt());
+            // Get job title if job exists
+            jobEntityRepo.findById(flag.getJobId()).ifPresent(job -> dto.setJobTitle(job.getTitle()));
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

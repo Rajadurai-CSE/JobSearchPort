@@ -24,6 +24,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Company</th>
+                    <th>Verification</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -32,7 +33,19 @@
                 <tr *ngFor="let emp of employers">
                     <td>{{ emp.name }}</td>
                     <td>{{ emp.email }}</td>
-                    <td>{{ emp.companyName || 'N/A' }}</td>
+                    <td>
+                        <div *ngIf="emp.company">
+                            <strong>{{ emp.company.companyName }}</strong><br>
+                            <small *ngIf="emp.company.companyURL"><a [href]="emp.company.companyURL"
+                                    target="_blank">Website</a></small>
+                        </div>
+                        <span *ngIf="!emp.company" class="text-muted">N/A</span>
+                    </td>
+                    <td>
+                        <a *ngIf="emp.employerVerificationUrl" [href]="emp.employerVerificationUrl" target="_blank"
+                            class="btn btn-link btn-sm">View Document</a>
+                        <span *ngIf="!emp.employerVerificationUrl" class="text-muted">-</span>
+                    </td>
                     <td><span class="badge" [ngClass]="getStatusClass(emp.status)">{{ emp.status }}</span></td>
                     <td>
                         <div class="action-buttons" *ngIf="emp.status === 'PENDING'">

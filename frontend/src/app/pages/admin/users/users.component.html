@@ -44,6 +44,10 @@
                                 *ngIf="user.status === 'REVOKED'">
                                 Delete
                             </button>
+                            <button class="btn btn-sm btn-success" (click)="reinstateUser(user)"
+                                *ngIf="user.status === 'REVOKED'">
+                                Reinstate
+                            </button>
                         </div>
                     </td>
                 </tr>

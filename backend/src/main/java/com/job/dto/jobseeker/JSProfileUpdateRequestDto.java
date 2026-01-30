@@ -1,17 +1,19 @@
 package com.job.dto.jobseeker;
 
+import jakarta.validation.constraints.Min;
+
 public class JSProfileUpdateRequestDto {
-  	private Long userId;
-	private String name;
-	private String dob;
-	private String location;
-	private String phoneNo;
-	private String skills;
-	private int experience;
-	private String resumeUrl;
-	private String certifications;
-	private String certificationsUrl;
-  
+    private Long userId;
+    private String name;
+    private String dob;
+    private String location;
+    private String phoneNo;
+    private String skills;
+    @Min(value = 0, message = "Experience must be non-negative")
+    private Integer experience;
+    private String resumeUrl;
+    private String certifications;
+    private String certificationsUrl;
 
     /**
      * @return String return the name
@@ -84,16 +86,16 @@ public class JSProfileUpdateRequestDto {
     }
 
     /**
-     * @return int return the experience
+     * @return Integer return the experience
      */
-    public int getExperience() {
+    public Integer getExperience() {
         return experience;
     }
 
     /**
      * @param experience the experience to set
      */
-    public void setExperience(int experience) {
+    public void setExperience(Integer experience) {
         this.experience = experience;
     }
 
@@ -138,7 +140,6 @@ public class JSProfileUpdateRequestDto {
     public void setCertificationsUrl(String certificationsUrl) {
         this.certificationsUrl = certificationsUrl;
     }
-
 
     /**
      * @return Long return the userId

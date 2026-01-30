@@ -6,15 +6,16 @@ import com.job.enums.Role;
 public class RegisterResponse {
 	private Long userId;
 	private String email;
+	private String name;
 	private Role role;
 	private Approval_Status status;
 
-	public RegisterResponse(Long userId, String email, Role role, Approval_Status status) {
+	public RegisterResponse(Long userId, String email, String name, Role role, Approval_Status status) {
 		this.userId = userId;
 		this.email = email;
+		this.name = name;
 		this.role = role;
 		this.status = status;
-
 	}
 
 	public Long getUserId() {
@@ -33,6 +34,14 @@ public class RegisterResponse {
 		this.email = email;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public Role getRole() {
 		return role;
 	}
@@ -48,5 +57,4 @@ public class RegisterResponse {
 	public void setStatus(Approval_Status status) {
 		this.status = status;
 	}
-
 }

@@ -12,16 +12,17 @@ import com.job.entity.jobseeker.JobSeekerProfile;
 @Repository
 public interface JobApplicationRepo extends JpaRepository<JobApplications, JobApplicationId> {
     List<JobApplications> findByJobSeeker(JobSeekerProfile jobSeeker);
+
     List<JobApplications> findByJob_JobId(Long jobId);
 
     @Query("""
-        SELECT ja
-        FROM JobApplications ja
-        WHERE ja.job.jobId = :jobId
-          AND ja.job.employerProfile.userId = :employerId
-    """)
+                SELECT ja
+                FROM JobApplications ja
+                WHERE ja.job.jobId = :jobId
+                  AND ja.job.employerProfile.userId = :employerId
+                  AND ja.stage != 'WITHDRAWN'
+            """)
     List<JobApplications> findByJobIdAndEmployerId(
             Long jobId,
-            Long employerId
-    );
+            Long employerId);
 }

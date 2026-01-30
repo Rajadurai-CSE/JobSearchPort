@@ -13,6 +13,7 @@
             <a routerLink="/jobseeker/jobs" class="nav-link">Find Jobs</a>
             <a routerLink="/jobseeker/applications" class="nav-link">Applications</a>
             <a routerLink="/jobseeker/bookmarks" class="nav-link">Bookmarks</a>
+            <a routerLink="/jobseeker/flag-requests" class="nav-link">🚩 My Reports</a>
             <a routerLink="/jobseeker/profile" class="nav-link">Profile</a>
         </ng-container>
 
@@ -20,6 +21,7 @@
         <ng-container *ngIf="authService.getUserRole() === 'EMPLOYER'">
             <a routerLink="/employer/dashboard" class="nav-link">Dashboard</a>
             <a routerLink="/employer/jobs" class="nav-link">My Jobs</a>
+            <a routerLink="/employer/flag-requests" class="nav-link">🚩 My Reports</a>
             <a routerLink="/employer/profile" class="nav-link">Profile</a>
         </ng-container>
 

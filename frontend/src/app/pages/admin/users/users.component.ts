@@ -9,7 +9,7 @@ import { UserDto } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, NavbarComponent],
   templateUrl: './users.component.html',
-  styleUrls: [ './users.component.css']
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
   private apiService = inject(ApiService);
@@ -42,6 +42,18 @@ export class UsersComponent implements OnInit {
         this.showMessage('User revoked', 'success');
       },
       error: () => this.showMessage('Failed to revoke', 'error')
+    });
+  }
+
+  reinstateUser(user: UserDto): void {
+    if (!confirm(`Reinstate access for ${user.email}?`)) return;
+
+    this.apiService.reinstateUser(user.userId).subscribe({
+      next: () => {
+        user.status = 'APPROVED';
+        this.showMessage('User reinstated', 'success');
+      },
+      error: () => this.showMessage('Failed to reinstate', 'error')
     });
   }
 

@@ -11,7 +11,7 @@ import { JSProfile, JSProfileUpdateRequest } from '../../../core/models/user.mod
   standalone: true,
   imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './profile.component.html',
-  styleUrls: [ './profile.component.css']
+  styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
   private apiService = inject(ApiService);
@@ -47,7 +47,7 @@ export class ProfileComponent implements OnInit {
         this.profile = data;
         this.formData = {
           name: data.name || '',
-          phone: data.phone || '',
+          phone: data.phoneNo || '',
           address: data.address || '',
           skills: data.skills || '',
           experience: data.experience || '',
@@ -71,7 +71,13 @@ export class ProfileComponent implements OnInit {
     this.saving = true;
     const request: JSProfileUpdateRequest = {
       userId,
-      ...this.formData
+      name: this.formData.name,
+      phoneNo: this.formData.phone,
+      address: this.formData.address,
+      skills: this.formData.skills,
+      experience: this.formData.experience,
+      education: this.formData.education,
+      resumeUrl: this.formData.resumeUrl
     };
 
     this.apiService.updateJSProfile(request).subscribe({

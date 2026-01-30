@@ -71,12 +71,14 @@ public class AuthService {
             jobseeker.setUserAuth(savedUser);
             jobseeker.setCreatedAt(LocalDateTime.now());
             jobseeker.setEmail(savedUser.getEmail());
+            jobseeker.setName(request.getName());
             jobseeker_repo.save(jobseeker);
         } else if (savedUser.getRole() == Role.EMPLOYER) {
             EmployerProfile employer = new EmployerProfile();
             employer.setUserAuth(savedUser);
             employer.setCreatedAt(LocalDateTime.now());
             employer.setEmail(savedUser.getEmail());
+            employer.setName(request.getName());
             employer_repo.save(employer);
         }
         return register_mapper.entity_to_dto(savedUser);

@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import {
     Job, JobSearchRequest, JobCreateRequest, JobUpdateRequest,
     Application, Bookmark, FlaggedJobStatus,
-    EmployerJobApplication, JobApplicationUpdate, FlagUserRequest
+    EmployerJobApplication, JobApplicationUpdate, FlagUserRequest,
+    FlaggedJobSeekerRequest
 } from '../models/job.model';
 import {
     UserDto, DisplayEmployerProfile, DisplayReportedJS, FlaggedJobDto,
@@ -87,6 +88,10 @@ export class ApiService {
     // ============== EMPLOYER ENDPOINTS ==============
 
     // Profile
+    getEmployerProfile(userId: number): Observable<EmployerProfile> {
+        return this.http.get<EmployerProfile>(`${this.API_URL}/employer/profile/${userId}`);
+    }
+
     updateEmployerProfile(request: EmpProfileUpdateRequest): Observable<EmployerProfile> {
         return this.http.put<EmployerProfile>(`${this.API_URL}/employer/update_profile`, request);
     }
@@ -150,6 +155,10 @@ export class ApiService {
         return this.http.post(`${this.API_URL}/employer/jobs/flagUser`, request, { responseType: 'text' });
     }
 
+    getMyFlagRequests(employerId: number): Observable<FlaggedJobSeekerRequest[]> {
+        return this.http.get<FlaggedJobSeekerRequest[]>(`${this.API_URL}/employer/flag-requests/${employerId}`);
+    }
+
     // ============== ADMIN ENDPOINTS ==============
 
     // Statistics
@@ -172,6 +181,10 @@ export class ApiService {
 
     deleteUser(userId: number): Observable<string> {
         return this.http.delete(`${this.API_URL}/admin/users/${userId}`, { responseType: 'text' });
+    }
+
+    reinstateUser(userId: number): Observable<string> {
+        return this.http.put(`${this.API_URL}/admin/users/${userId}/reinstate`, {}, { responseType: 'text' });
     }
 
     // Employers

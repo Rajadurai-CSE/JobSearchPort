@@ -47,6 +47,10 @@ export const routes: Routes = [
             {
                 path: 'profile',
                 loadComponent: () => import('./pages/jobseeker/profile/profile.component').then(m => m.ProfileComponent)
+            },
+            {
+                path: 'flag-requests',
+                loadComponent: () => import('./pages/jobseeker/flag-requests/flag-requests.component').then(m => m.FlagRequestsComponent)
             }
         ]
     },
@@ -91,6 +95,11 @@ export const routes: Routes = [
                 path: 'applicants/:jobId',
                 canActivate: [statusGuard],
                 loadComponent: () => import('./pages/employer/applicants/applicants.component').then(m => m.ApplicantsComponent)
+            },
+            {
+                path: 'flag-requests',
+                canActivate: [statusGuard],
+                loadComponent: () => import('./pages/employer/flag-requests/flag-requests.component').then(m => m.FlagRequestsComponent)
             }
         ]
     },

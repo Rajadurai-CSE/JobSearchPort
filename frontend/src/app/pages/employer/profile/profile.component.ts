@@ -46,6 +46,38 @@ export class EmployerProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCompanies();
+    this.loadProfile();
+  }
+
+  loadProfile(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    this.apiService.getEmployerProfile(userId).subscribe({
+      next: (data) => {
+        this.formData = {
+          name: data.name || '',
+          contactNo: data.contactNo || '',
+          employerVerificationUrl: data.employerVerificationUrl || ''
+        };
+
+        if (data.company) {
+          // If the company exists in our list, select it
+          // Otherwise we might need to wait for companies to load or handled by filtered logic
+          // For now, let's just set the company object if we have it
+          this.selectedCompany = {
+            companyId: data.companyId,
+            companyName: data.company.companyName,
+            companyURL: data.company.companyURL,
+            companyDescription: data.company.companyDescription
+          };
+          this.companySearchQuery = data.company.companyName;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+      }
+    });
   }
 
   loadCompanies(): void {

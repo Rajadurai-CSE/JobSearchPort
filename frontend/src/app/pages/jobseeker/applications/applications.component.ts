@@ -80,7 +80,7 @@ export class ApplicationsComponent implements OnInit {
     const userId = this.authService.getUserId();
     if (!userId) return;
 
-    this.apiService.flagJob(userId, this.selectedApp.jobId, this.flagReason).subscribe({
+    this.apiService.flagJob(this.selectedApp.jobId, userId, this.flagReason).subscribe({
       next: () => {
         this.showMessage('Job reported successfully', 'success');
         this.closeFlagModal();

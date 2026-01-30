@@ -79,4 +79,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal-overlay" *ngIf="showStatusModal" (click)="closeStatusModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Update Application Status</h3>
+            <p class="text-muted">Updating status for {{ selectedApplicant?.jobSeekerName }} to <strong>{{ pendingStatus
+                    }}</strong></p>
+            <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" [(ngModel)]="statusNotes" rows="4"
+                    placeholder="Add notes about next recruitment stage, interview details, feedback, etc."></textarea>
+                <small class="text-muted">These notes will be visible to you for tracking recruitment progress.</small>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" (click)="closeStatusModal()">Cancel</button>
+                <button class="btn btn-primary" (click)="submitStatusUpdate()">Update Status</button>
+            </div>
+        </div>
+    </div>
 </div>

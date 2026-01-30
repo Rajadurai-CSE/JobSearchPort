@@ -41,7 +41,7 @@ public class JobSeekerController {
 	}
 
 	@PutMapping("/update_profile")
-	public ResponseEntity<JSProfileUpdateResponseDto> updateProfile(@RequestBody JSProfileUpdateRequestDto req) {
+	public ResponseEntity<JSProfileUpdateResponseDto> updateProfile(@Valid @RequestBody JSProfileUpdateRequestDto req) {
 		JSProfileUpdateResponseDto res = service.updateProfile(req);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}

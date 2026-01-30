@@ -66,6 +66,11 @@ public class EmployerService {
         return EmployerMapper.toEmployerDto(saved);
     }
 
+    public EmployerDto getProfile(Long userId) {
+        EmployerProfile employer = getEmployerById(userId);
+        return EmployerMapper.toEmployerDto(employer);
+    }
+
     private Company resolveCompany(EmpProfileUpdateDto req) {
         if (req.getCompanyId() != null) {
             return companyRepository.findById(req.getCompanyId())
@@ -256,6 +261,15 @@ public class EmployerService {
 
     public void deleteJob(Long jobId, Long userId) {
         JobEntity existing = getJobByIdForEmployer(jobId, userId);
+
+        // Mark all applications as JOB_DELETED before removing the job
+        List<JobApplications> applications = jobApplicationRepo.findByJob_JobId(jobId);
+        for (JobApplications app : applications) {
+            app.setStage(com.job.enums.ApplicationStage.JOB_DELETED);
+            app.setDescription("Job was deleted by employer");
+            jobApplicationRepo.save(app);
+        }
+
         jobEntityRepository.delete(existing);
     }
 
@@ -313,6 +327,21 @@ public class EmployerService {
                 cur.getUpdatedAt() != null ? cur.getUpdatedAt() : LocalDate.now());
 
         jobApplicationRepo.save(entity);
+    }
+
+    public List<com.job.dto.employer.FlaggedJobSeekerDto> getMyFlaggedJobSeekers(Long userId) {
+        List<FlaggedJobSeekers> flags = flagJobSeekerRepo.findByEmployer_UserId(userId);
+        return flags.stream().map(flag -> {
+            com.job.dto.employer.FlaggedJobSeekerDto dto = new com.job.dto.employer.FlaggedJobSeekerDto();
+            dto.setRequestId(flag.getRequest_id());
+            dto.setJobSeekerId(flag.getJobSeeker().getUserId());
+            dto.setJobSeekerName(flag.getJobSeeker().getName());
+            dto.setJobSeekerEmail(flag.getJobSeeker().getEmail());
+            dto.setReason(flag.getReason());
+            dto.setActionTaken(flag.getAction_taken());
+            dto.setFlaggedAt(flag.getAppliedAt());
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     private boolean hasText(String s) {

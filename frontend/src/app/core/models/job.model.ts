@@ -101,3 +101,13 @@ export interface FlagUserRequest {
     jobseeker_id: number;
     reason: string;
 }
+
+export interface FlaggedJobSeekerRequest {
+    requestId: number;
+    jobSeekerId: number;
+    jobSeekerName: string;
+    jobSeekerEmail: string;
+    reason: string;
+    actionTaken: string;
+    flaggedAt: string;
+}

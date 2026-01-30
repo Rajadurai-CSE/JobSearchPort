@@ -30,7 +30,14 @@ public class Register_Mapper {
   }
 
   public RegisterResponse entity_to_dto(UserAuth user) {
-    RegisterResponse response = new RegisterResponse(user.getUserid(), user.getEmail(), user.getRole(),
+    String name = "";
+    if (user.getRole() == Role.JOB_SEEKER && user.getJobseeker() != null) {
+      name = user.getJobseeker().getName();
+    } else if (user.getRole() == Role.EMPLOYER && user.getEmployerProfile() != null) {
+      name = user.getEmployerProfile().getName();
+    }
+
+    RegisterResponse response = new RegisterResponse(user.getUserid(), user.getEmail(), name, user.getRole(),
         user.getStatus());
     return response;
   }

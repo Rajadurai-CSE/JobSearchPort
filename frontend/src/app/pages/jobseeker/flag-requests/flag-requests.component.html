@@ -1,0 +1,72 @@
+<app-navbar></app-navbar>
+
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1>🚩 My Flag Requests</h1>
+            <p>Track the status of jobs you've reported</p>
+        </div>
+        <a routerLink="/jobseeker/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Flag Requests Table -->
+    <div *ngIf="!loading && flagRequests.length > 0" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Reason</th>
+                    <th>Reported On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let flag of flagRequests">
+                    <td>
+                        <a [routerLink]="['/jobseeker/jobs', flag.jobId]" class="job-link">
+                            {{ flag.jobTitle || 'Job #' + flag.jobId }}
+                        </a>
+                    </td>
+                    <td class="reason-cell">{{ flag.reason }}</td>
+                    <td>{{ flag.appliedAt | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="getStatusClass(flag.status)">
+                            {{ getStatusLabel(flag.status) }}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && flagRequests.length === 0" class="empty-state">
+        <div class="empty-state-icon">🚩</div>
+        <h3>No Flag Requests</h3>
+        <p>You haven't reported any jobs yet</p>
+    </div>
+
+    <!-- Legend -->
+    <div *ngIf="!loading && flagRequests.length > 0" class="legend">
+        <h4>Status Legend</h4>
+        <div class="legend-items">
+            <div class="legend-item">
+                <span class="badge badge-warning">Pending Review</span>
+                <span>Your report is being reviewed by admin</span>
+            </div>
+            <div class="legend-item">
+                <span class="badge badge-success">Job Removed</span>
+                <span>Admin accepted your report and removed the job</span>
+            </div>
+            <div class="legend-item">
+                <span class="badge badge-danger">Request Ignored</span>
+                <span>Admin reviewed and decided no action was needed</span>
+            </div>
+        </div>
+    </div>
+</div>
