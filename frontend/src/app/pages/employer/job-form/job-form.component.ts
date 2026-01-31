@@ -50,22 +50,36 @@ export class JobFormComponent implements OnInit {
 
   loadJob(jobId: number): void {
     this.loading = true;
-    this.apiService.getJobDetails(jobId).subscribe({
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.loading = false;
+      this.showMessage('User not authenticated', 'error');
+      return;
+    }
+
+    console.log('Loading job with ID:', jobId, 'for employer:', userId);
+    this.apiService.getEmployerJobDetails(jobId, userId).subscribe({
       next: (job) => {
+        console.log('Job data received:', job);
         this.formData = {
-          title: job.title,
-          description: job.description,
-          location: job.location,
-          requiredSkills: job.requiredSkills,
-          salaryRange: job.salaryRange,
-          noOfVacancies: job.noOfVacancies,
-          minimumExperience: job.minimumExperience,
-          employmentType: job.employmentType,
+          title: job.title || '',
+          description: job.description || '',
+          location: job.location || '',
+          requiredSkills: job.requiredSkills || '',
+          salaryRange: job.salaryRange || '',
+          noOfVacancies: job.noOfVacancies || 1,
+          minimumExperience: job.minimumExperience || 0,
+          employmentType: job.employmentType || 'FULL_TIME',
           applicationDeadline: job.applicationDeadline?.split('T')[0] || ''
         };
+        console.log('Form data set:', this.formData);
         this.loading = false;
       },
-      error: () => this.loading = false
+      error: (err) => {
+        console.error('Error loading job:', err);
+        this.loading = false;
+        this.showMessage('Failed to load job details', 'error');
+      }
     });
   }
 
@@ -93,6 +107,20 @@ export class JobFormComponent implements OnInit {
       }
     }
 
+    // Validate deadline (required and not in past)
+    if (!this.formData.applicationDeadline) {
+      this.showMessage('Application deadline is required', 'error');
+      return;
+    }
+
+    const deadline = new Date(this.formData.applicationDeadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (deadline < today) {
+      this.showMessage('Application deadline cannot be in the past', 'error');
+      return;
+    }
+
     this.saving = true;
 
     if (this.isEditMode && this.jobId) {
@@ -107,9 +135,9 @@ export class JobFormComponent implements OnInit {
           this.showMessage('Job updated!', 'success');
           setTimeout(() => this.router.navigate(['/employer/jobs']), 1500);
         },
-        error: () => {
+        error: (err) => {
           this.saving = false;
-          this.showMessage('Failed to update', 'error');
+          this.showMessage(err.error || 'Failed to update', 'error');
         }
       });
     } else {
@@ -123,9 +151,9 @@ export class JobFormComponent implements OnInit {
           this.showMessage('Job created!', 'success');
           setTimeout(() => this.router.navigate(['/employer/jobs']), 1500);
         },
-        error: () => {
+        error: (err) => {
           this.saving = false;
-          this.showMessage('Failed to create', 'error');
+          this.showMessage(err.error || 'Failed to create', 'error');
         }
       });
     }

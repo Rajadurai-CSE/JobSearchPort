@@ -1,6 +1,5 @@
 package com.job.entity.job;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,9 +33,8 @@ public class JobEntity {
 	private Long jobId;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "employer_id")
-  private EmployerProfile employerProfile;
-
+	@JoinColumn(name = "employer_id")
+	private EmployerProfile employerProfile;
 
 	private String title;
 	private String description;
@@ -50,146 +48,171 @@ public class JobEntity {
 
 	@CreationTimestamp
 	private LocalDateTime createdAt;
-	
+
+	private boolean deleted = false; // Soft delete flag
 
 	// @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<FlaggedJobs> flaggedJobs;
+	// private List<FlaggedJobs> flaggedJobs;
 
 	@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JobApplications> jobApplications;
+	private List<JobApplications> jobApplications;
 
-			@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookMarkedJobs> bookMarkedJobs;
-	
-//	@OneToMany(mappedBy = "job",fetch=FetchType.LAZY)
-//	private List<JobApplication> applications = new ArrayList<>();
-	
-	
+	@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<BookMarkedJobs> bookMarkedJobs;
+
+	// @OneToMany(mappedBy = "job",fetch=FetchType.LAZY)
+	// private List<JobApplication> applications = new ArrayList<>();
+
 	public Long getJobId() {
 		return jobId;
 	}
+
 	public void setJobId(Long jobId) {
 		this.jobId = jobId;
 	}
+
 	public String getTitle() {
 		return title;
 	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	public String getLocation() {
 		return location;
 	}
+
 	public void setLocation(String location) {
 		this.location = location;
 	}
+
 	public String getRequiredSkills() {
 		return requiredSkills;
 	}
+
 	public void setRequiredSkills(String requiredSkills) {
 		this.requiredSkills = requiredSkills;
 	}
+
 	public int getMinExperience() {
 		return minExperience;
 	}
+
 	public void setMinExperience(int minExperience) {
 		this.minExperience = minExperience;
 	}
+
 	public String getSalaryRange() {
 		return salaryRange;
 	}
+
 	public void setSalaryRange(String salaryRange) {
 		this.salaryRange = salaryRange;
 	}
+
 	public String getEmploymentType() {
 		return employmentType;
 	}
+
 	public void setEmploymentType(String employmentType) {
 		this.employmentType = employmentType;
 	}
+
 	public int getVacancies() {
 		return vacancies;
 	}
+
 	public void setVacancies(int vacancies) {
 		this.vacancies = vacancies;
 	}
+
 	public LocalDate getDeadline() {
 		return deadline;
 	}
+
 	public void setDeadline(LocalDate deadline) {
 		this.deadline = deadline;
 	}
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
+
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-	
-	
 
-    /**
-     * @return List<FlaggedJobs> return the flaggedJobs
-     */
-    // public List<FlaggedJobs> getFlaggedJobs() {
-    //     return flaggedJobs;
-    // }
+	public boolean isDeleted() {
+		return deleted;
+	}
 
-    // /**
-    //  * @param flaggedJobs the flaggedJobs to set
-    //  */
-    // public void setFlaggedJobs(List<FlaggedJobs> flaggedJobs) {
-    //     this.flaggedJobs = flaggedJobs;
-    // }
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
 
-    /**
-     * @return List<JobApplication> return the jobApplications
-     */
-    public List<JobApplications> getJobApplications() {
-        return jobApplications;
-    }
+	/**
+	 * @return List<FlaggedJobs> return the flaggedJobs
+	 */
+	// public List<FlaggedJobs> getFlaggedJobs() {
+	// return flaggedJobs;
+	// }
 
-    /**
-     * @param jobApplications the jobApplications to set
-     */
-    public void setJobApplications(List<JobApplications> jobApplications) {
-        this.jobApplications = jobApplications;
-    }
+	// /**
+	// * @param flaggedJobs the flaggedJobs to set
+	// */
+	// public void setFlaggedJobs(List<FlaggedJobs> flaggedJobs) {
+	// this.flaggedJobs = flaggedJobs;
+	// }
 
+	/**
+	 * @return List<JobApplication> return the jobApplications
+	 */
+	public List<JobApplications> getJobApplications() {
+		return jobApplications;
+	}
 
-    /**
-     * @return EmployerProfile return the employerProfile
-     */
-    public EmployerProfile getEmployerProfile() {
-        return employerProfile;
-    }
+	/**
+	 * @param jobApplications the jobApplications to set
+	 */
+	public void setJobApplications(List<JobApplications> jobApplications) {
+		this.jobApplications = jobApplications;
+	}
 
-    /**
-     * @param employerProfile the employerProfile to set
-     */
-    public void setEmployerProfile(EmployerProfile employerProfile) {
-        this.employerProfile = employerProfile;
-    }
+	/**
+	 * @return EmployerProfile return the employerProfile
+	 */
+	public EmployerProfile getEmployerProfile() {
+		return employerProfile;
+	}
 
+	/**
+	 * @param employerProfile the employerProfile to set
+	 */
+	public void setEmployerProfile(EmployerProfile employerProfile) {
+		this.employerProfile = employerProfile;
+	}
 
-    /**
-     * @return List<BookMarkedJobs> return the bookMarkedJobs
-     */
-    public List<BookMarkedJobs> getBookMarkedJobs() {
-        return bookMarkedJobs;
-    }
+	/**
+	 * @return List<BookMarkedJobs> return the bookMarkedJobs
+	 */
+	public List<BookMarkedJobs> getBookMarkedJobs() {
+		return bookMarkedJobs;
+	}
 
-    /**
-     * @param bookMarkedJobs the bookMarkedJobs to set
-     */
-    public void setBookMarkedJobs(List<BookMarkedJobs> bookMarkedJobs) {
-        this.bookMarkedJobs = bookMarkedJobs;
-    }
+	/**
+	 * @param bookMarkedJobs the bookMarkedJobs to set
+	 */
+	public void setBookMarkedJobs(List<BookMarkedJobs> bookMarkedJobs) {
+		this.bookMarkedJobs = bookMarkedJobs;
+	}
 
 }

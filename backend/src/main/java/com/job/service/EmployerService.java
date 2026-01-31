@@ -188,6 +188,11 @@ public class EmployerService {
                 .orElseThrow(() -> new IllegalArgumentException("Job not found"));
     }
 
+    public JobResponseDto getJobById(Long jobId, Long employerId) {
+        JobEntity job = getJobByIdForEmployer(jobId, employerId);
+        return JobMapper.JobResponseDto(job);
+    }
+
     @Transactional
     public JobResponseDto updateJobFull(Long jobId, Long userId, JobUpdateRequestDto req) {
         JobEntity existing = getJobByIdForEmployer(jobId, userId);
@@ -262,7 +267,7 @@ public class EmployerService {
     public void deleteJob(Long jobId, Long userId) {
         JobEntity existing = getJobByIdForEmployer(jobId, userId);
 
-        // Mark all applications as JOB_DELETED before removing the job
+        // Mark all applications as JOB_DELETED
         List<JobApplications> applications = jobApplicationRepo.findByJob_JobId(jobId);
         for (JobApplications app : applications) {
             app.setStage(com.job.enums.ApplicationStage.JOB_DELETED);
@@ -270,7 +275,9 @@ public class EmployerService {
             jobApplicationRepo.save(app);
         }
 
-        jobEntityRepository.delete(existing);
+        // Soft delete - mark as deleted instead of removing
+        existing.setDeleted(true);
+        jobEntityRepository.save(existing);
     }
 
     public List<EmployerJobApplicationDto> getJobApplications(Long jobId, Long employerId) {

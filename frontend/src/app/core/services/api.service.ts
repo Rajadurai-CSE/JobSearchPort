@@ -134,11 +134,15 @@ export class ApiService {
     }
 
     updateJob(jobId: number, employerId: number, request: JobUpdateRequest): Observable<Job> {
-        return this.http.put<Job>(`${this.API_URL}/employer/jobs/update/${jobId}/${employerId}`, request);
+        return this.http.patch<Job>(`${this.API_URL}/employer/jobs/updatePartial/${jobId}/${employerId}`, request);
     }
 
     deleteJob(jobId: number, employerId: number): Observable<string> {
         return this.http.delete(`${this.API_URL}/employer/jobs/delete/${jobId}/${employerId}`, { responseType: 'text' });
+    }
+
+    getEmployerJobDetails(jobId: number, employerId: number): Observable<Job> {
+        return this.http.get<Job>(`${this.API_URL}/employer/job/${jobId}/${employerId}`);
     }
 
     // Applicants

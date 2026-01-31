@@ -106,6 +106,12 @@ public class EmployerController {
         return ResponseEntity.ok(service.getAllJobs(empId));
     }
 
+    @GetMapping("/job/{jobId}/{employerId}")
+    public ResponseEntity<JobResponseDto> getJobById(@PathVariable("jobId") Long jobId,
+            @PathVariable("employerId") Long employerId) {
+        return ResponseEntity.ok(service.getJobById(jobId, employerId));
+    }
+
     @DeleteMapping("/jobs/delete/{jobId}/{employerId}")
     public ResponseEntity<String> deleteJob(@PathVariable("jobId") Long jobId,
             @PathVariable("employerId") Long employerId) {

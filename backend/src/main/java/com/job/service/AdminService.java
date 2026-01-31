@@ -12,6 +12,8 @@ import com.job.dto.admin.UserDto;
 import com.job.entity.employer.EmployerProfile;
 import com.job.entity.employer.FlaggedJobSeekers;
 import com.job.entity.job.FlaggedJobs;
+import com.job.entity.job.JobApplications;
+import com.job.entity.job.JobEntity;
 import com.job.entity.jobseeker.JobSeekerProfile;
 import com.job.entity.registerentity.UserAuth;
 import com.job.enums.Approval_Status;
@@ -100,7 +102,20 @@ public class AdminService {
 		if (!jobEntityRepo.existsById(jobId)) {
 			throw new RuntimeException("Job not found with id: " + jobId);
 		}
-		jobEntityRepo.deleteById(jobId);
+
+		// Soft delete - mark as deleted instead of removing
+		JobEntity job = jobEntityRepo.findById(jobId).get();
+
+		// Mark all applications as JOB_DELETED
+		List<JobApplications> applications = jobApplicationRepo.findByJob_JobId(jobId);
+		for (JobApplications app : applications) {
+			app.setStage(com.job.enums.ApplicationStage.JOB_DELETED);
+			app.setDescription("Job was deleted by admin");
+			jobApplicationRepo.save(app);
+		}
+
+		job.setDeleted(true);
+		jobEntityRepo.save(job);
 	}
 
 	public String approveEmployer(Long userId) {
