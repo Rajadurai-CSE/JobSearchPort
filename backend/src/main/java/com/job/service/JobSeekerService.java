@@ -231,12 +231,20 @@ public class JobSeekerService {
                             return false;
                         }
                         String[] searchSkills = req.getSkills().toLowerCase().split(",");
-                        String jobSkills = job.getRequiredSkills().toLowerCase();
+                        String[] jobSkills = job.getRequiredSkills().toLowerCase().split(",");
                         boolean hasMatchingSkill = false;
+                        // for (String skill : searchSkills) {
+                        //     if (jobSkills.contains(skill.trim())) {
+                        //         hasMatchingSkill = true;
+                        //         break;
+                        //     }
+                        // }
                         for (String skill : searchSkills) {
-                            if (jobSkills.contains(skill.trim())) {
-                                hasMatchingSkill = true;
-                                break;
+                            for(String jobreqskill : jobSkills){
+                                if (jobreqskill.contains(skill.trim())) {
+                                    hasMatchingSkill = true;
+                                    break;
+                                }
                             }
                         }
                         if (!hasMatchingSkill)
@@ -250,14 +258,6 @@ public class JobSeekerService {
                         int userExp = req.getMinExperience();
                         int jobExp = job.getMinExperience(); // primitive int, defaults to 0
                         if (jobExp > userExp) {
-                            return false;
-                        }
-                    }
-
-                    // Filter by salary range
-                    if (req.getSalaryRange() != null && !req.getSalaryRange().isEmpty()) {
-                        if (job.getSalaryRange() == null ||
-                                !job.getSalaryRange().toLowerCase().contains(req.getSalaryRange().toLowerCase())) {
                             return false;
                         }
                     }
