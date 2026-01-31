@@ -46,11 +46,18 @@
                         <span *ngIf="!app.description" class="text-muted">—</span>
                     </td>
                     <td class="actions-cell">
+                        <!-- Show withdraw only for APPLIED status -->
                         <button class="btn btn-danger btn-sm" (click)="withdrawApplication(app)"
                             *ngIf="app.stage === 'APPLIED'">
                             Withdraw
                         </button>
-                        <button class="btn btn-sm btn-outline" (click)="openFlagModal(app)" title="Report this job">
+                        <!-- Show withdrawn message for WITHDRAWN status -->
+                        <span *ngIf="app.stage === 'WITHDRAWN'" class="withdrawn-info">
+                            <small class="text-muted">⚠️ Cannot re-apply</small>
+                        </span>
+                        <!-- Flag button for all non-withdrawn -->
+                        <button class="btn btn-sm btn-outline" (click)="openFlagModal(app)" title="Report this job"
+                            *ngIf="app.stage !== 'WITHDRAWN'">
                             🚩
                         </button>
                     </td>

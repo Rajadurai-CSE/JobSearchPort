@@ -21,10 +21,14 @@ export interface DisplayEmployerProfile {
 export interface DisplayReportedJS {
     requestId: number;
     jobSeekerId: number;
+    jobSeekerName: string;
     jobSeekerEmail: string;
+    employerId: number;
+    employerName: string;
     reason: string;
-    actionTaken: string;
+    actionTaken?: string;
     appliedAt: string;
+    actionNote?: string; // Temporary field for input binding
 }
 
 export interface FlaggedJobDto {
@@ -53,23 +57,27 @@ export interface JSProfile {
     userId: number;
     email: string;
     name: string;
+    dob: string;
     phoneNo: string;
-    address: string;
+    location: string;
     skills: string;
-    experience: string;
-    education: string;
+    experience: number;
     resumeUrl: string;
+    certifications: string;
+    certificationsUrl: string;
 }
 
 export interface JSProfileUpdateRequest {
     userId: number;
     name: string;
+    dob?: string;
     phoneNo: string;
-    address: string;
+    location: string;
     skills: string;
-    experience: string;
-    education: string;
+    experience?: number;
     resumeUrl: string;
+    certifications?: string;
+    certificationsUrl?: string;
 }
 
 export interface EmployerProfile {

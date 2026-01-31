@@ -21,7 +21,13 @@ export class LoginComponent {
   loading = false;
   error = '';
 
-  onSubmit(): void {
+  onSubmit(form: any): void {
+    
+    if (form.invalid) {
+        this.error = 'Please enter a valid email and password';
+        return;
+    }
+
     if (!this.email || !this.password) {
       this.error = 'Please fill in all fields';
       return;

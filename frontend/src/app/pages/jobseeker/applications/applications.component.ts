@@ -49,7 +49,7 @@ export class ApplicationsComponent implements OnInit {
   }
 
   withdrawApplication(app: Application): void {
-    if (!confirm('Are you sure you want to withdraw this application?')) return;
+    if (!confirm('Are you sure you want to withdraw this application?\n\n⚠️ Warning: You will NOT be able to apply for this job again.')) return;
 
     const userId = this.authService.getUserId();
     if (!userId) return;

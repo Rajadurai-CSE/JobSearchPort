@@ -73,10 +73,34 @@ export class JobFormComponent implements OnInit {
     const userId = this.authService.getUserId();
     if (!userId) return;
 
+    // Validate required fields for creation
+    if (!this.isEditMode) {
+      if (!this.formData.title.trim()) {
+        this.showMessage('Job title is required', 'error');
+        return;
+      }
+      if (!this.formData.description.trim()) {
+        this.showMessage('Job description is required', 'error');
+        return;
+      }
+      if (!this.formData.location.trim()) {
+        this.showMessage('Location is required', 'error');
+        return;
+      }
+      if (!this.formData.requiredSkills.trim()) {
+        this.showMessage('Required skills are required', 'error');
+        return;
+      }
+    }
+
     this.saving = true;
 
     if (this.isEditMode && this.jobId) {
-      const request: JobUpdateRequest = { ...this.formData };
+      // In edit mode, only update vacancies and deadline
+      const request: JobUpdateRequest = {
+        noOfVacancies: this.formData.noOfVacancies,
+        applicationDeadline: this.formData.applicationDeadline
+      };
       this.apiService.updateJob(this.jobId, userId, request).subscribe({
         next: () => {
           this.saving = false;

@@ -26,7 +26,7 @@ export class JobListComponent implements OnInit {
   // Search filters
   searchTitle = '';
   searchLocation = '';
-  searchMinExp = '';
+  searchMinExp: number | null = null;
   searchSkills = '';
 
   // Apply modal
@@ -34,11 +34,12 @@ export class JobListComponent implements OnInit {
   selectedJobId: number | null = null;
   selectedJobTitle = '';
   resumeUrl = '';
-  appliedJobIds: Set<number> = new Set();
+  // Map job ID to application status (APPLIED, WITHDRAWN, etc.)
+  applicationStatusMap: Map<number, string> = new Map();
 
   ngOnInit(): void {
     this.loadJobs();
-    this.loadAppliedJobs();
+    this.loadApplicationStatus();
   }
 
   loadJobs(): void {
@@ -55,13 +56,15 @@ export class JobListComponent implements OnInit {
     });
   }
 
-  loadAppliedJobs(): void {
+  loadApplicationStatus(): void {
     const userId = this.authService.getUserId();
     if (!userId) return;
 
     this.apiService.getApplications(userId).subscribe({
       next: (applications) => {
-        this.appliedJobIds = new Set(applications.map(app => app.jobId));
+        this.applicationStatusMap = new Map(
+          applications.map(app => [app.jobId, app.stage])
+        );
       }
     });
   }
@@ -70,7 +73,7 @@ export class JobListComponent implements OnInit {
     const request: JobSearchRequest = {};
     if (this.searchTitle) request.title = this.searchTitle;
     if (this.searchLocation) request.location = this.searchLocation;
-    if (this.searchMinExp) request.minExperience = parseInt(this.searchMinExp);
+    if (this.searchMinExp !== null) request.minExperience = this.searchMinExp;
     if (this.searchSkills) request.skills = this.searchSkills;
 
     this.loading = true;
@@ -89,13 +92,22 @@ export class JobListComponent implements OnInit {
   clearFilters(): void {
     this.searchTitle = '';
     this.searchLocation = '';
-    this.searchMinExp = '';
+    this.searchMinExp = null;
     this.searchSkills = '';
     this.loadJobs();
   }
 
+  getApplicationStatus(jobId: number): string | undefined {
+    return this.applicationStatusMap.get(jobId);
+  }
+
   openApplyModal(jobId: number, jobTitle: string): void {
-    if (this.appliedJobIds.has(jobId)) {
+    const status = this.applicationStatusMap.get(jobId);
+    if (status === 'WITHDRAWN') {
+      this.showMessage('You cannot re-apply after withdrawing', 'error');
+      return;
+    }
+    if (status) {
       this.showMessage('You have already applied for this job', 'error');
       return;
     }
@@ -124,7 +136,7 @@ export class JobListComponent implements OnInit {
     this.apiService.applyForJob(jobId, userId, this.resumeUrl).subscribe({
       next: () => {
         this.showMessage('Applied successfully!', 'success');
-        this.appliedJobIds.add(jobId);
+        this.applicationStatusMap.set(jobId, 'APPLIED');
         this.closeApplyModal();
       },
       error: (err) => this.showMessage(err.error || 'Failed to apply', 'error')

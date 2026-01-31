@@ -32,8 +32,8 @@
         <form *ngIf="editMode" (ngSubmit)="saveProfile()">
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" [(ngModel)]="formData.name" name="name">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Phone</label>
@@ -41,9 +41,17 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Address</label>
-                <input type="text" class="form-control" [(ngModel)]="formData.address" name="address">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.location" name="location"
+                        placeholder="City, State">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Experience (years)</label>
+                    <input type="number" class="form-control" [(ngModel)]="formData.experience" name="experience"
+                        min="0" max="50" placeholder="0">
+                </div>
             </div>
 
             <div class="form-group">
@@ -53,13 +61,9 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Experience</label>
-                <textarea class="form-control" [(ngModel)]="formData.experience" name="experience" rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Education</label>
-                <textarea class="form-control" [(ngModel)]="formData.education" name="education" rows="3"></textarea>
+                <label class="form-label">Certifications</label>
+                <input type="text" class="form-control" [(ngModel)]="formData.certifications" name="certifications"
+                    placeholder="AWS Certified, Google Cloud...">
             </div>
 
             <div class="form-group">
@@ -78,9 +82,9 @@
                 <span class="info-label">Phone</span>
                 <span>{{ formData.phone }}</span>
             </div>
-            <div class="info-row" *ngIf="formData.address">
-                <span class="info-label">Address</span>
-                <span>{{ formData.address }}</span>
+            <div class="info-row" *ngIf="formData.location">
+                <span class="info-label">Location</span>
+                <span>{{ formData.location }}</span>
             </div>
             <div class="info-row" *ngIf="formData.skills">
                 <span class="info-label">Skills</span>
@@ -88,11 +92,11 @@
             </div>
             <div class="info-row" *ngIf="formData.experience">
                 <span class="info-label">Experience</span>
-                <span>{{ formData.experience }}</span>
+                <span>{{ formData.experience }} years</span>
             </div>
-            <div class="info-row" *ngIf="formData.education">
-                <span class="info-label">Education</span>
-                <span>{{ formData.education }}</span>
+            <div class="info-row" *ngIf="formData.certifications">
+                <span class="info-label">Certifications</span>
+                <span>{{ formData.certifications }}</span>
             </div>
             <div class="info-row" *ngIf="formData.resumeUrl">
                 <span class="info-label">Resume</span>

@@ -148,6 +148,11 @@ public class JobSeekerService {
     }
 
     public void flagJob(Long jobId, Long seekerId, String reason) {
+        // Check for duplicate flag
+        if (flaggedJobsRepo.existsByJobIdAndJobSeeker_UserId(jobId, seekerId)) {
+            throw new IllegalStateException("You have already reported this job");
+        }
+
         if (!jobEntityRepo.existsById(jobId)) {
             throw new IllegalArgumentException("Job not found with id: " + jobId);
         }
@@ -239,8 +244,12 @@ public class JobSeekerService {
                     }
 
                     // Filter by minimum experience
+                    // Only apply filter if minExperience is provided
+                    // Job passes if its required experience <= user's experience
                     if (req.getMinExperience() != null) {
-                        if (job.getMinExperience() > req.getMinExperience()) {
+                        int userExp = req.getMinExperience();
+                        int jobExp = job.getMinExperience(); // primitive int, defaults to 0
+                        if (jobExp > userExp) {
                             return false;
                         }
                     }

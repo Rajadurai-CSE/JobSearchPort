@@ -28,13 +28,13 @@ export class JobDetailComponent implements OnInit {
   flagReason = '';
   showApplyModal = false;
   resumeUrl = '';
-  hasApplied = false;
+  applicationStatus: string | null = null; // null = not applied, 'APPLIED', 'WITHDRAWN', etc.
 
   ngOnInit(): void {
     const jobId = this.route.snapshot.paramMap.get('id');
     if (jobId) {
       this.loadJob(+jobId);
-      this.checkIfApplied(+jobId);
+      this.checkApplicationStatus(+jobId);
     }
   }
 
@@ -51,19 +51,24 @@ export class JobDetailComponent implements OnInit {
     });
   }
 
-  checkIfApplied(jobId: number): void {
+  checkApplicationStatus(jobId: number): void {
     const userId = this.authService.getUserId();
     if (!userId) return;
 
     this.apiService.getApplications(userId).subscribe({
       next: (applications) => {
-        this.hasApplied = applications.some(app => app.jobId === jobId);
+        const app = applications.find(a => a.jobId === jobId);
+        this.applicationStatus = app ? app.stage : null;
       }
     });
   }
 
   openApplyModal(): void {
-    if (this.hasApplied) {
+    if (this.applicationStatus === 'WITHDRAWN') {
+      this.showMessage('You cannot re-apply after withdrawing', 'error');
+      return;
+    }
+    if (this.applicationStatus) {
       this.showMessage('You have already applied for this job', 'error');
       return;
     }
@@ -88,7 +93,7 @@ export class JobDetailComponent implements OnInit {
     this.apiService.applyForJob(this.job.jobId, userId, this.resumeUrl).subscribe({
       next: () => {
         this.showMessage('Applied successfully!', 'success');
-        this.hasApplied = true;
+        this.applicationStatus = 'APPLIED';
         this.closeApplyModal();
       },
       error: (err) => this.showMessage(err.error || 'Failed to apply', 'error')

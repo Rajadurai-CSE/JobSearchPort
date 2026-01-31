@@ -8,7 +8,10 @@ import java.util.List;
 @Repository
 public interface FlaggedJobsRepo extends JpaRepository<FlaggedJobs, Long> {
     List<FlaggedJobs> findByJobSeeker_UserId(Long userId);
+
     List<FlaggedJobs> findByStatus(FlaggedJobs.Status status);
+
     List<FlaggedJobs> findByJobId(Long jobId);
 
+    boolean existsByJobIdAndJobSeeker_UserId(Long jobId, Long userId);
 }

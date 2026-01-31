@@ -27,10 +27,10 @@ export class ProfileComponent implements OnInit {
   formData = {
     name: '',
     phone: '',
-    address: '',
+    location: '',
     skills: '',
-    experience: '',
-    education: '',
+    experience: 0,
+    certifications: '',
     resumeUrl: ''
   };
 
@@ -48,10 +48,10 @@ export class ProfileComponent implements OnInit {
         this.formData = {
           name: data.name || '',
           phone: data.phoneNo || '',
-          address: data.address || '',
+          location: data.location || '',
           skills: data.skills || '',
-          experience: data.experience || '',
-          education: data.education || '',
+          experience: data.experience || 0,
+          certifications: data.certifications || '',
           resumeUrl: data.resumeUrl || ''
         };
         this.loading = false;
@@ -64,20 +64,36 @@ export class ProfileComponent implements OnInit {
     this.editMode = !this.editMode;
   }
 
+  validateForm(): string | null {
+    if (!this.formData.name.trim()) {
+      return 'Name is required';
+    }
+    if (this.formData.experience < 0) {
+      return 'Experience cannot be negative';
+    }
+    return null;
+  }
+
   saveProfile(): void {
     const userId = this.authService.getUserId();
     if (!userId) return;
 
+    const validationError = this.validateForm();
+    if (validationError) {
+      this.showMessage(validationError, 'error');
+      return;
+    }
+
     this.saving = true;
     const request: JSProfileUpdateRequest = {
       userId,
-      name: this.formData.name,
-      phoneNo: this.formData.phone,
-      address: this.formData.address,
-      skills: this.formData.skills,
+      name: this.formData.name.trim(),
+      phoneNo: this.formData.phone.trim(),
+      location: this.formData.location.trim(),
+      skills: this.formData.skills.trim(),
       experience: this.formData.experience,
-      education: this.formData.education,
-      resumeUrl: this.formData.resumeUrl
+      certifications: this.formData.certifications.trim(),
+      resumeUrl: this.formData.resumeUrl.trim()
     };
 
     this.apiService.updateJSProfile(request).subscribe({
@@ -86,10 +102,12 @@ export class ProfileComponent implements OnInit {
         this.saving = false;
         this.editMode = false;
         this.showMessage('Profile updated successfully', 'success');
+        this.loadProfile(); // Reload to sync data
       },
-      error: () => {
+      error: (err) => {
         this.saving = false;
-        this.showMessage('Failed to update profile', 'error');
+        const errorMsg = err.error?.message || 'Failed to update profile. Please check all fields.';
+        this.showMessage(errorMsg, 'error');
       }
     });
   }
@@ -97,6 +115,7 @@ export class ProfileComponent implements OnInit {
   private showMessage(msg: string, type: string): void {
     this.message = msg;
     this.messageType = type;
-    setTimeout(() => this.message = '', 3000);
+    setTimeout(() => this.message = '', 4000);
   }
 }
+

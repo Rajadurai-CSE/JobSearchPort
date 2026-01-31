@@ -1,6 +1,29 @@
 <nav class="navbar">
     <div class="navbar-brand">
-        <a routerLink="/" class="brand-link">
+        <a *ngIf="authService.getUserRole() === 'JOB_SEEKER'"
+        routerLink="/jobseeker/dashboard"
+        class="brand-link">
+            <span class="brand-icon">💼</span>
+            Job Portal
+        </a>
+
+        <a *ngIf="authService.getUserRole() === 'EMPLOYER'"
+        routerLink="/employer/dashboard"
+        class="brand-link">
+            <span class="brand-icon">💼</span>
+            Job Portal
+        </a>
+
+        <a *ngIf="authService.getUserRole() === 'ADMIN'"
+        routerLink="/admin/dashboard"
+        class="brand-link">
+            <span class="brand-icon">💼</span>
+            Job Portal
+        </a>
+
+        <a *ngIf="!authService.isLoggedIn()"
+        routerLink="/"
+        class="brand-link">
             <span class="brand-icon">💼</span>
             Job Portal
         </a>

@@ -3,49 +3,80 @@ package com.job.dto.admin;
 import java.time.LocalDateTime;
 
 public class DisplayReportedJS {
-   
-    private Long request_id;
-    private Long job_seeker_id;
-    private Long employer_id;
+
+    private Long requestId;
+    private Long jobSeekerId;
+    private String jobSeekerName;
+    private String jobSeekerEmail;
+    private Long employerId;
+    private String employerName;
     private String reason;
     private LocalDateTime appliedAt;
-    private String action_taken;
+    private String actionTaken;
 
-    public DisplayReportedJS(Long request_id, Long job_seeker_id, Long employer_id, String reason, LocalDateTime appliedAt,String action_taken){
-      this.request_id = request_id;
-      this.job_seeker_id = job_seeker_id;
-      this.employer_id = employer_id;
-      this.reason = reason;
-      this.appliedAt = appliedAt;
-      this.action_taken = action_taken;
-    }
-    public DisplayReportedJS(){}
-    public Long getRequest_id() {
-        return request_id;
-    }
-
-    public void setRequest_id(Long request_id) {
-        this.request_id = request_id;
+    public DisplayReportedJS(Long requestId, Long jobSeekerId, String jobSeekerName, String jobSeekerEmail,
+            Long employerId, String employerName, String reason,
+            LocalDateTime appliedAt, String actionTaken) {
+        this.requestId = requestId;
+        this.jobSeekerId = jobSeekerId;
+        this.jobSeekerName = jobSeekerName;
+        this.jobSeekerEmail = jobSeekerEmail;
+        this.employerId = employerId;
+        this.employerName = employerName;
+        this.reason = reason;
+        this.appliedAt = appliedAt;
+        this.actionTaken = actionTaken;
     }
 
- 
-    public Long getJob_seeker_id() {
-        return job_seeker_id;
+    public DisplayReportedJS() {
     }
 
-
-    public void setJob_seeker_id(Long job_seeker_id) {
-        this.job_seeker_id = job_seeker_id;
+    public Long getRequestId() {
+        return requestId;
     }
 
-
-    public Long getEmployer_id() {
-        return employer_id;
+    public void setRequestId(Long requestId) {
+        this.requestId = requestId;
     }
 
+    public Long getJobSeekerId() {
+        return jobSeekerId;
+    }
 
-    public void setEmployer_id(Long employer_id) {
-        this.employer_id = employer_id;
+    public void setJobSeekerId(Long jobSeekerId) {
+        this.jobSeekerId = jobSeekerId;
+    }
+
+    public String getJobSeekerName() {
+        return jobSeekerName;
+    }
+
+    public void setJobSeekerName(String jobSeekerName) {
+        this.jobSeekerName = jobSeekerName;
+    }
+
+    public String getJobSeekerEmail() {
+        return jobSeekerEmail;
+    }
+
+    public void setJobSeekerEmail(String jobSeekerEmail) {
+        this.jobSeekerEmail = jobSeekerEmail;
+    }
+
+    public Long getEmployerId() {
+        return employerId;
+    }
+
+    public void setEmployerId(Long employerId) {
+        this.employerId = employerId;
+    }
+
+    public String getEmployerName() {
+        return employerName;
+    }
+
+    public void setEmployerName(String employerName) {
+        this.employerName = employerName;
     }
 
     public String getReason() {
@@ -56,24 +87,19 @@ public class DisplayReportedJS {
         this.reason = reason;
     }
 
-    public LocalDateTime getappliedAt() {
+    public LocalDateTime getAppliedAt() {
         return appliedAt;
     }
-    public void setappliedAt(LocalDateTime appliedAt) {
+
+    public void setAppliedAt(LocalDateTime appliedAt) {
         this.appliedAt = appliedAt;
     }
 
-    /**
-     * @return String return the action_taken
-     */
-    public String getAction_taken() {
-        return action_taken;
+    public String getActionTaken() {
+        return actionTaken;
     }
 
-    /**
-     * @param action_taken the action_taken to set
-     */
-    public void setAction_taken(String action_taken) {
-        this.action_taken = action_taken;
+    public void setActionTaken(String actionTaken) {
+        this.actionTaken = actionTaken;
     }
 }

@@ -3,7 +3,7 @@
 <div class="page-container">
     <div class="page-header">
         <h1>Flagged Job Seekers</h1>
-        <p>Review reported job seekers</p>
+        <p>Review reported job seekers and take appropriate action</p>
     </div>
 
     <!-- Toast -->
@@ -21,34 +21,46 @@
         <table>
             <thead>
                 <tr>
-                    <th>Email</th>
+                    <th>Job Seeker</th>
+                    <th>Reported By</th>
                     <th>Reason</th>
                     <th>Reported On</th>
                     <th>Action</th>
-                    <th></th>
+                    <th>Action Taken</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let item of flaggedUsers">
-                    <td>{{ item.jobSeekerEmail }}</td>
+                    <td>
+                        <strong>{{ item.jobSeekerName || 'N/A' }}</strong><br>
+                        <small class="text-muted">{{ item.jobSeekerEmail }}</small>
+                    </td>
+                    <td>
+                        <strong>{{ item.employerName || 'Unknown' }}</strong><br>
+                        <small class="text-muted">ID: {{ item.employerId }}</small>
+                    </td>
                     <td>{{ item.reason }}</td>
                     <td>{{ item.appliedAt | date:'mediumDate' }}</td>
                     <td>
-                        <span class="badge" [ngClass]="{
-              'badge-warning': item.actionTaken === 'PENDING',
-              'badge-info': item.actionTaken === 'REVIEWED',
-              'badge-success': item.actionTaken === 'WARNING',
-              'badge-danger': item.actionTaken === 'REVOKED'
-            }">{{ item.actionTaken }}</span>
+                        <button class="btn btn-sm btn-danger" (click)="revokeUser(item)"
+                            *ngIf="item.actionTaken === 'PENDING' || !item.actionTaken">
+                            Revoke
+                        </button>
+                        <span *ngIf="item.actionTaken && item.actionTaken !== 'PENDING'" class="badge badge-success">
+                            Done
+                        </span>
                     </td>
                     <td>
-                        <div class="action-buttons" *ngIf="item.actionTaken === 'PENDING'">
-                            <button class="btn btn-sm btn-outline" (click)="takeAction(item, 'REVIEWED')">Mark
-                                Reviewed</button>
-                            <button class="btn btn-sm btn-warning" (click)="takeAction(item, 'WARNING')">Issue
-                                Warning</button>
-                            <button class="btn btn-sm btn-danger" (click)="takeAction(item, 'REVOKED')">Revoke</button>
+                        <div *ngIf="item.actionTaken === 'PENDING' || !item.actionTaken" class="action-input-group">
+                            <input type="text" class="form-control form-control-sm" [(ngModel)]="item.actionNote"
+                                placeholder="Enter action taken...">
+                            <button class="btn btn-sm btn-primary" (click)="submitActionTaken(item)">
+                                Save
+                            </button>
                         </div>
+                        <span *ngIf="item.actionTaken && item.actionTaken !== 'PENDING'">
+                            {{ item.actionTaken }}
+                        </span>
                     </td>
                 </tr>
             </tbody>

@@ -9,33 +9,42 @@ import com.job.entity.employer.EmployerProfile;
 import com.job.entity.employer.FlaggedJobSeekers;
 
 public class AdminMapper {
-  
-  public static DisplayReportedJS convertEntitytoDto(FlaggedJobSeekers ele) {
-    if (ele == null) return null;
 
-    return new DisplayReportedJS(
-        ele.getRequest_id(),
-        ele.getJobSeeker().getUserId(),
-        ele.getEmployer().getUserId(),
-        ele.getReason(),
-        ele.getCreatedAt(),
-        ele.getAction_taken()
-    );
-}
+    public static DisplayReportedJS convertEntitytoDto(FlaggedJobSeekers ele) {
+        if (ele == null)
+            return null;
 
-    public static List<DisplayReportedJS> convertEntitytoDtoList(List<FlaggedJobSeekers> objs){
-    // if(dto == null) return null;
+        String jobSeekerName = ele.getJobSeeker() != null ? ele.getJobSeeker().getName() : "Unknown";
+        String jobSeekerEmail = ele.getJobSeeker() != null ? ele.getJobSeeker().getEmail() : "Unknown";
+        String employerName = ele.getEmployer() != null ? ele.getEmployer().getName() : "Unknown";
 
-    List<DisplayReportedJS> listdto = new ArrayList<>();
-
-    for(FlaggedJobSeekers ele:objs){
-      listdto.add(new DisplayReportedJS(ele.getRequest_id(), ele.getJobSeeker().getUserId(), ele.getEmployer().getUserId(), ele.getReason(), ele.getCreatedAt(), ele.getAction_taken()));
+        return new DisplayReportedJS(
+                ele.getRequest_id(),
+                ele.getJobSeeker() != null ? ele.getJobSeeker().getUserId() : null,
+                jobSeekerName,
+                jobSeekerEmail,
+                ele.getEmployer() != null ? ele.getEmployer().getUserId() : null,
+                employerName,
+                ele.getReason(),
+                ele.getCreatedAt(),
+                ele.getAction_taken());
     }
-    return listdto;
-  }
+
+    public static List<DisplayReportedJS> convertEntitytoDtoList(List<FlaggedJobSeekers> objs) {
+        if (objs == null)
+            return new ArrayList<>();
+
+        List<DisplayReportedJS> listdto = new ArrayList<>();
+
+        for (FlaggedJobSeekers ele : objs) {
+            listdto.add(convertEntitytoDto(ele));
+        }
+        return listdto;
+    }
 
     public static DisplayEmployerProfileDto convertEmployerToDto(EmployerProfile emp) {
-        if (emp == null) return null;
+        if (emp == null)
+            return null;
 
         DisplayEmployerProfileDto dto = new DisplayEmployerProfileDto();
 
@@ -57,12 +66,14 @@ public class AdminMapper {
 
         return dto;
     }
-        public static List<DisplayEmployerProfileDto> convertEmployerToDtoList(
+
+    public static List<DisplayEmployerProfileDto> convertEmployerToDtoList(
             List<EmployerProfile> employers) {
 
         List<DisplayEmployerProfileDto> dtoList = new ArrayList<>();
 
-        if (employers == null) return dtoList;
+        if (employers == null)
+            return dtoList;
 
         for (EmployerProfile emp : employers) {
             dtoList.add(convertEmployerToDto(emp));

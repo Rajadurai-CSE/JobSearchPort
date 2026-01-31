@@ -43,9 +43,27 @@
             <p class="job-skills">{{ job.requiredSkills }}</p>
             <div class="job-actions">
                 <a [routerLink]="['/jobseeker/jobs', job.jobId]" class="btn btn-outline btn-sm">View Details</a>
+                <!-- Not applied yet -->
                 <button class="btn btn-primary btn-sm" (click)="openApplyModal(job.jobId, job.title)"
-                    *ngIf="!appliedJobIds.has(job.jobId)">Apply</button>
-                <button class="btn btn-success btn-sm" disabled *ngIf="appliedJobIds.has(job.jobId)">✓ Applied</button>
+                    *ngIf="!getApplicationStatus(job.jobId)">Apply</button>
+                <!-- Applied -->
+                <button class="btn btn-success btn-sm" disabled *ngIf="getApplicationStatus(job.jobId) === 'APPLIED'">✓
+                    Applied</button>
+                <!-- Withdrawn -->
+                <button class="btn btn-secondary btn-sm" disabled
+                    *ngIf="getApplicationStatus(job.jobId) === 'WITHDRAWN'">⚠️ Withdrawn</button>
+                <!-- Shortlisted -->
+                <button class="btn btn-success btn-sm" disabled
+                    *ngIf="getApplicationStatus(job.jobId) === 'SHORTLISTED'">📋 Shortlisted</button>
+                <!-- Interview -->
+                <button class="btn btn-info btn-sm" disabled *ngIf="getApplicationStatus(job.jobId) === 'INTERVIEW'">🎤
+                    Interview</button>
+                <!-- Hired -->
+                <button class="btn btn-success btn-sm" disabled *ngIf="getApplicationStatus(job.jobId) === 'HIRED'">🎉
+                    Hired</button>
+                <!-- Rejected -->
+                <button class="btn btn-danger btn-sm" disabled *ngIf="getApplicationStatus(job.jobId) === 'REJECTED'">✗
+                    Rejected</button>
                 <button class="btn btn-sm" (click)="bookmarkJob(job.jobId)">🔖</button>
             </div>
         </div>

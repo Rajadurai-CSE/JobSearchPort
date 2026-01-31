@@ -55,8 +55,16 @@
         </div>
 
         <div class="job-actions">
-            <button class="btn btn-primary btn-lg" (click)="openApplyModal()" *ngIf="!hasApplied">Apply Now</button>
-            <button class="btn btn-success btn-lg" disabled *ngIf="hasApplied">✓ Applied</button>
+            <button class="btn btn-primary btn-lg" (click)="openApplyModal()" *ngIf="!applicationStatus">Apply
+                Now</button>
+            <button class="btn btn-success btn-lg" disabled *ngIf="applicationStatus === 'APPLIED'">✓ Applied</button>
+            <button class="btn btn-secondary btn-lg" disabled *ngIf="applicationStatus === 'WITHDRAWN'">⚠️
+                Withdrawn</button>
+            <button class="btn btn-success btn-lg" disabled *ngIf="applicationStatus === 'SHORTLISTED'">📋
+                Shortlisted</button>
+            <button class="btn btn-info btn-lg" disabled *ngIf="applicationStatus === 'INTERVIEW'">🎤 Interview</button>
+            <button class="btn btn-success btn-lg" disabled *ngIf="applicationStatus === 'HIRED'">🎉 Hired</button>
+            <button class="btn btn-danger btn-lg" disabled *ngIf="applicationStatus === 'REJECTED'">✗ Rejected</button>
             <button class="btn btn-outline btn-lg" (click)="bookmarkJob()">🔖 Save Job</button>
             <button class="btn btn-danger btn-lg" (click)="openFlagModal()">🚩 Report</button>
         </div>
