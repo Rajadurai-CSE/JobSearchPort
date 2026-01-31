@@ -9,6 +9,15 @@
         <a routerLink="/jobseeker/dashboard" class="btn btn-outline">← Back to Dashboard</a>
     </div>
 
+    <!-- Info Alert -->
+    <div class="alert alert-info"
+        style="margin-bottom: 2rem; background: rgba(78, 205, 196, 0.1); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(78, 205, 196, 0.2);">
+        📧 <strong>Need to raise a complaint against an employer?</strong> Please email us at <a
+            href="mailto:admin&#64;jsp.com" style="color: var(--primary); font-weight: 500;">admin&#64;jsp.com</a> with
+        the
+        details.
+    </div>
+
     <!-- Loading -->
     <div *ngIf="loading" class="loading">
         <div class="spinner"></div>

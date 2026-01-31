@@ -193,65 +193,26 @@ public class EmployerService {
         return JobMapper.JobResponseDto(job);
     }
 
+    /**
+     * Update job - only vacancies and deadline can be modified.
+     * For other changes, employers must delete and create a new job.
+     */
     @Transactional
-    public JobResponseDto updateJobFull(Long jobId, Long userId, JobUpdateRequestDto req) {
+    public JobResponseDto updateJob(Long jobId, Long userId, JobUpdateRequestDto req) {
         JobEntity existing = getJobByIdForEmployer(jobId, userId);
 
-        if (!hasText(req.getTitle())) {
-            throw new IllegalArgumentException("title is required");
-        }
-        if (!hasText(req.getDescription())) {
-            throw new IllegalArgumentException("description is required");
-        }
-
-        existing.setTitle(req.getTitle().trim());
-        existing.setDeadline(req.getApplicationDeadline());
-        existing.setLocation(trim(req.getLocation()));
-        existing.setRequiredSkills(trim(req.getRequiredSkills()));
-        existing.setSalaryRange(trim(req.getSalaryRange()));
-        if (req.getNoOfVacancies() != null)
+        // Update only vacancies and deadline
+        if (req.getNoOfVacancies() != null && req.getNoOfVacancies() > 0) {
             existing.setVacancies(req.getNoOfVacancies());
-        if (req.getMinimumExperience() != null)
-            existing.setMinExperience(req.getMinimumExperience());
-        existing.setEmploymentType(trim(req.getEmploymentType()));
-
-        if (existing.getDeadline() != null &&
-                existing.getCreatedAt() != null &&
-                existing.getDeadline().isBefore(existing.getCreatedAt().toLocalDate())) {
-            throw new IllegalArgumentException("applicationDeadline cannot be before postedDate");
         }
 
-        JobEntity saved = jobEntityRepository.save(existing);
-        return JobMapper.JobResponseDto(saved);
-    }
-
-    @Transactional
-    public JobResponseDto updateJobPartial(Long jobId, Long userId, JobUpdateRequestDto req) {
-        JobEntity existing = getJobByIdForEmployer(jobId, userId);
-
-        if (hasText(req.getTitle()))
-            existing.setTitle(req.getTitle().trim());
-        if (req.getApplicationDeadline() != null)
+        if (req.getApplicationDeadline() != null) {
+            // Validate deadline is not before creation date
+            if (existing.getCreatedAt() != null &&
+                    req.getApplicationDeadline().isBefore(existing.getCreatedAt().toLocalDate())) {
+                throw new IllegalArgumentException("Application deadline cannot be before job creation date");
+            }
             existing.setDeadline(req.getApplicationDeadline());
-        if (hasText(req.getLocation()))
-            existing.setLocation(req.getLocation().trim());
-        if (hasText(req.getRequiredSkills()))
-            existing.setRequiredSkills(req.getRequiredSkills().trim());
-        if (hasText(req.getSalaryRange()))
-            existing.setSalaryRange(req.getSalaryRange().trim());
-        if (req.getNoOfVacancies() != null && req.getNoOfVacancies() >= 0)
-            existing.setVacancies(req.getNoOfVacancies());
-        if (hasText(req.getDescription()))
-            existing.setDescription(req.getDescription().trim());
-        if (req.getMinimumExperience() != null && req.getMinimumExperience() >= 0)
-            existing.setMinExperience(req.getMinimumExperience());
-        if (hasText(req.getEmploymentType()))
-            existing.setEmploymentType(req.getEmploymentType().trim());
-
-        if (existing.getDeadline() != null &&
-                existing.getCreatedAt() != null &&
-                existing.getDeadline().isBefore(existing.getCreatedAt().toLocalDate())) {
-            throw new IllegalArgumentException("applicationDeadline cannot be before postedDate");
         }
 
         JobEntity saved = jobEntityRepository.save(existing);
@@ -259,7 +220,7 @@ public class EmployerService {
     }
 
     public List<JobResponseDto> getAllJobs(Long userId) {
-        List<JobEntity> jobs = jobEntityRepository.findAllByEmployerProfile_UserId(userId);
+        List<JobEntity> jobs = jobEntityRepository.findByEmployerProfile_UserIdAndDeletedFalse(userId);
 
         return JobMapper.JobResponseDto(jobs);
     }

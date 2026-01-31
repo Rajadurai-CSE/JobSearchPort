@@ -90,7 +90,7 @@
                 <span class="info-label">Skills</span>
                 <span>{{ formData.skills }}</span>
             </div>
-            <div class="info-row" *ngIf="formData.experience">
+            <div class="info-row" *ngIf="formData.experience !== null">
                 <span class="info-label">Experience</span>
                 <span>{{ formData.experience }} years</span>
             </div>

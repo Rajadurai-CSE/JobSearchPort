@@ -24,6 +24,13 @@
             updated.
         </div>
 
+        <!-- Creation mode notice -->
+        <div *ngIf="!isEditMode" class="alert alert-warning"
+            style="margin-bottom: 1rem; padding: 1rem; background: rgba(255, 193, 7, 0.15); border-radius: var(--radius-md); border: 1px solid rgba(255, 193, 7, 0.2);">
+            ⚠️ <strong>Important:</strong> Once created, you will only be able to update the <strong>Number of
+                Vacancies</strong> and <strong>Application Deadline</strong>. Other details cannot be changed.
+        </div>
+
         <form (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label class="form-label">Job Title *</label>

@@ -36,15 +36,9 @@ export interface JobCreateRequest {
     applicationDeadline: string;
 }
 
+// Simplified - only vacancies and deadline can be updated
 export interface JobUpdateRequest {
-    title?: string;
-    description?: string;
-    location?: string;
-    requiredSkills?: string;
-    salaryRange?: string;
     noOfVacancies?: number;
-    minimumExperience?: number;
-    employmentType?: string;
     applicationDeadline?: string;
 }
 

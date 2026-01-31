@@ -88,16 +88,9 @@ public class EmployerController {
     }
 
     @PutMapping("/jobs/update/{jobId}/{employerId}")
-    public ResponseEntity<JobResponseDto> updateJobFull(@PathVariable("jobId") Long jobId,
+    public ResponseEntity<JobResponseDto> updateJob(@PathVariable("jobId") Long jobId,
             @PathVariable("employerId") Long employerId, @Valid @RequestBody JobUpdateRequestDto jobReq) {
-        JobResponseDto updated = service.updateJobFull(jobId, employerId, jobReq);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
-    }
-
-    @PatchMapping("/jobs/updatePartial/{jobId}/{employerId}")
-    public ResponseEntity<JobResponseDto> updateJobPartial(@PathVariable("jobId") Long jobId,
-            @PathVariable("employerId") Long employerId, @RequestBody JobUpdateRequestDto jobReq) {
-        JobResponseDto updated = service.updateJobPartial(jobId, employerId, jobReq);
+        JobResponseDto updated = service.updateJob(jobId, employerId, jobReq);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 

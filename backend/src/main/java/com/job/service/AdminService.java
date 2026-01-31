@@ -151,55 +151,9 @@ public class AdminService {
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		user.setStatus(Approval_Status.REVOKED);
+		userAuthRepository.save(user); // Only update status, keep profile
 
-		if (user.getRole() == Role.EMPLOYER) {
-			EmployerProfile employer = user.getEmployerProfile();
-			if (employer != null) {
-				employerProfileRepo.delete(employer);
-				user.setEmployerProfile(null);
-			}
-
-		} else if (user.getRole() == Role.JOB_SEEKER) {
-			JobSeekerProfile seeker = user.getJobseeker();
-			if (seeker != null) {
-				jobSeekerProfileRepo.delete(seeker);
-				user.setJobseeker(null);
-			}
-		}
-		userAuthRepository.save(user);
-		return "User revoked and profile deleted";
-	}
-
-	public SystemStatisticsDto getSystemStatistics() {
-		SystemStatisticsDto stats = new SystemStatisticsDto();
-		List<UserAuth> allUsers = userAuthRepository.findAll();
-
-		long jobSeekers = allUsers.stream()
-				.filter(u -> u.getRole() == Role.JOB_SEEKER)
-				.count();
-
-		long employers = allUsers.stream()
-				.filter(u -> u.getRole() == Role.EMPLOYER)
-				.count();
-
-		long pendingEmployers = allUsers.stream()
-				.filter(u -> u.getRole() == Role.EMPLOYER && u.getStatus() == Approval_Status.PENDING)
-				.count();
-
-		long revokedUsers = allUsers.stream()
-				.filter(u -> u.getStatus() == Approval_Status.REVOKED)
-				.count();
-
-		stats.setTotalJobSeekers(jobSeekers);
-		stats.setTotalEmployers(employers);
-		stats.setTotalJobs(jobEntityRepo.count());
-		stats.setTotalApplications(jobApplicationRepo.count());
-		stats.setPendingEmployers(pendingEmployers);
-		stats.setFlaggedJobSeekers(flagJobSeekersRepo.count());
-		stats.setFlaggedJobs(flaggedJobsRepo.count());
-		stats.setRevokedUsers(revokedUsers);
-
-		return stats;
+		return "User revoked successfully";
 	}
 
 	public List<UserDto> getAllUsers() {
@@ -290,24 +244,47 @@ public class AdminService {
 		// Set status back to APPROVED
 		user.setStatus(Approval_Status.APPROVED);
 
-		// Re-create profile based on role (user will need to fill in details later)
-		if (user.getRole() == Role.EMPLOYER && user.getEmployerProfile() == null) {
-			EmployerProfile profile = new EmployerProfile();
-			profile.setName("");
-			profile.setEmail(user.getEmail());
-			profile.setUserId(user.getUserid());
-			profile.setUserAuth(user);
-			user.setEmployerProfile(profile);
-		} else if (user.getRole() == Role.JOB_SEEKER && user.getJobseeker() == null) {
-			JobSeekerProfile profile = new JobSeekerProfile();
-			profile.setName("");
-			profile.setEmail(user.getEmail());
-			profile.setUserId(user.getUserid());
-			profile.setUserAuth(user);
-			user.setJobseeker(profile);
+		// Check if profile exists, if not create new (for legacy revoked users)
+		if (user.getRole() == Role.EMPLOYER) {
+			if (user.getEmployerProfile() == null) {
+				EmployerProfile profile = new EmployerProfile();
+				profile.setName("");
+				profile.setEmail(user.getEmail());
+				profile.setUserId(user.getUserid());
+				profile.setUserAuth(user);
+				user.setEmployerProfile(profile);
+			}
+		} else if (user.getRole() == Role.JOB_SEEKER) {
+			if (user.getJobseeker() == null) {
+				JobSeekerProfile profile = new JobSeekerProfile();
+				profile.setName("");
+				profile.setEmail(user.getEmail());
+				profile.setUserId(user.getUserid());
+				profile.setUserAuth(user);
+				user.setJobseeker(profile);
+			}
 		}
 
 		userAuthRepository.save(user);
 		return "User reinstated successfully. User must complete their profile.";
+	}
+
+	public SystemStatisticsDto getSystemStatistics() {
+		SystemStatisticsDto stats = new SystemStatisticsDto();
+
+		stats.setTotalJobSeekers(jobSeekerProfileRepo.count());
+		stats.setTotalEmployers(employerProfileRepo.count());
+		// Only count NON-deleted jobs
+		stats.setTotalJobs(jobEntityRepo.findByDeletedFalse().size());
+		stats.setTotalApplications(jobApplicationRepo.count());
+
+		List<UserAuth> users = userAuthRepository.findAll();
+		stats.setPendingEmployers(users.stream()
+				.filter(u -> u.getStatus() == Approval_Status.PENDING && u.getRole() == Role.EMPLOYER).count());
+		stats.setRevokedUsers(users.stream().filter(u -> u.getStatus() == Approval_Status.REVOKED).count());
+		stats.setFlaggedJobSeekers(flagJobSeekersRepo.count());
+		stats.setFlaggedJobs(flaggedJobsRepo.count());
+
+		return stats;
 	}
 }

@@ -196,7 +196,7 @@ public class JobSeekerService {
     }
 
     public List<JobResponseDto> getAllJobs() {
-        List<JobEntity> jobs = jobEntityRepo.findAll();
+        List<JobEntity> jobs = jobEntityRepo.findByDeletedFalse();
         List<JobResponseDto> out = new ArrayList<>();
         for (JobEntity j : jobs) {
             out.add(JobMapper.JobResponseDto(j));
@@ -205,7 +205,7 @@ public class JobSeekerService {
     }
 
     public List<JobResponseDto> searchJobs(JobSearchRequestdto req) {
-        List<JobEntity> allJobs = jobEntityRepo.findAll();
+        List<JobEntity> allJobs = jobEntityRepo.findByDeletedFalse();
 
         return allJobs.stream()
                 .filter(job -> {

@@ -1,71 +1,28 @@
 package com.job.dto.job;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+/**
+ * Simplified DTO for job updates.
+ * Only vacancies and deadline can be updated.
+ * Other fields require creating a new job.
+ */
 public class JobUpdateRequestDto {
-    // For PUT: validate required fields at service level
-    private String title;
-    private String description;
-    private String location;
-    private String requiredSkills;
-    private String salaryRange;
     private Integer noOfVacancies;
-    private Integer minimumExperience;
-    private String employmentType;
     private LocalDate applicationDeadline;
-    // getters and setters
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public String getLocation() {
-        return location;
-    }
-    public void setLocation(String location) {
-        this.location = location;
-    }
-    public String getRequiredSkills() {
-        return requiredSkills;
-    }
-    public void setRequiredSkills(String requiredSkills) {
-        this.requiredSkills = requiredSkills;
-    }
-    public String getSalaryRange() {
-        return salaryRange;
-    }
-    public void setSalaryRange(String salaryRange) {
-        this.salaryRange = salaryRange;
-    }
+
     public Integer getNoOfVacancies() {
         return noOfVacancies;
     }
+
     public void setNoOfVacancies(Integer noOfVacancies) {
         this.noOfVacancies = noOfVacancies;
     }
-    public Integer getMinimumExperience() {
-        return minimumExperience;
-    }
-    public void setMinimumExperience(Integer minimumExperience) {
-        this.minimumExperience = minimumExperience;
-    }
-    public String getEmploymentType() {
-        return employmentType;
-    }
-    public void setEmploymentType(String employmentType) {
-        this.employmentType = employmentType;
-    }
+
     public LocalDate getApplicationDeadline() {
         return applicationDeadline;
     }
+
     public void setApplicationDeadline(LocalDate applicationDeadline) {
         this.applicationDeadline = applicationDeadline;
     }
