@@ -101,10 +101,15 @@ export class JobFormComponent implements OnInit {
         this.showMessage('Location is required', 'error');
         return;
       }
+      if (!this.formData.salaryRange.trim()) {
+        this.showMessage('Salary is required', 'error');
+        return;
+      }
       if (!this.formData.requiredSkills.trim()) {
         this.showMessage('Required skills are required', 'error');
         return;
       }
+
     }
 
     // Validate deadline (required and not in past)
@@ -146,7 +151,9 @@ export class JobFormComponent implements OnInit {
         userId: userId
       };
       this.apiService.createJob(request).subscribe({
+        
         next: () => {
+          console.log('called the backend api');
           this.saving = false;
           this.showMessage('Job created!', 'success');
           setTimeout(() => this.router.navigate(['/employer/jobs']), 1500);
