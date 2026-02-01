@@ -40,13 +40,13 @@ public class JwtInterceptor implements HandlerInterceptor {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return false;
             }
-
-            if (request.getRequestURI().startsWith("/employer") && !"EMPLOYER".equals(role) && !"ADMIN".equals(role)) {
+            // && !"ADMIN".equals(role)
+            if (request.getRequestURI().startsWith("/employer") && !"EMPLOYER".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return false;
             }
-
-            if (request.getRequestURI().startsWith("/jobseeker") && !"JOB_SEEKER".equals(role) && !"ADMIN".equals(role)) {
+//  && !"ADMIN".equals(role)
+            if (request.getRequestURI().startsWith("/jobseeker") && !"JOB_SEEKER".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return false;
             }

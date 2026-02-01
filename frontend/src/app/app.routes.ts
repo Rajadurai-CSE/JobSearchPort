@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard, statusGuard } from './core/guards/auth.guard';
+import { authGuard, roleGuard, statusGuard, setupGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     // Public routes
@@ -14,6 +14,7 @@ export const routes: Routes = [
     },
     {
         path: 'employer-setup/:userId',
+        canActivate: [setupGuard],
         loadComponent: () => import('./pages/employer/setup/setup.component').then(m => m.EmployerSetupComponent)
     },
 

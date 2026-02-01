@@ -4,8 +4,25 @@
         <h2>Registration Denied</h2>
         <p class="status-message">
             Your registration has been denied by an administrator.
-            If you believe this is an error, please contact support.
+            You can update your profile details and re-apply for verification.
         </p>
-        <a routerLink="/login" class="btn btn-outline mt-3">Back to Login</a>
+
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+        <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+        <div class="action-buttons">
+            <a routerLink="/employer-setup/{{ userId }}" class="btn btn-primary">
+                📝 Update Profile
+            </a>
+            <button class="btn btn-outline" (click)="reapply()" [disabled]="loading">
+                {{ loading ? 'Submitting...' : '🔄 Re-apply for Verification' }}
+            </button>
+        </div>
+
+        <p class="helper-text">
+            After updating your profile, click "Re-apply for Verification" to submit for admin review.
+        </p>
+
+        <a routerLink="/login" class="btn btn-link mt-3" (click)="goToLogin()">← Back to Login</a>
     </div>
 </div>

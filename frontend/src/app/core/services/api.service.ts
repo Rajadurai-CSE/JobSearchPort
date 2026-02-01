@@ -229,4 +229,9 @@ export class ApiService {
     deleteFlaggedJob(flagId: number): Observable<string> {
         return this.http.put(`${this.API_URL}/admin/flagged-jobs/${flagId}/delete`, {}, { responseType: 'text' });
     }
+
+    // ============== EMPLOYER RE-APPLICATION ==============
+    reapplyForVerification(userId: number): Observable<string> {
+        return this.http.put(`${this.API_URL}/employer/reapply/${userId}`, {}, { responseType: 'text' });
+    }
 }

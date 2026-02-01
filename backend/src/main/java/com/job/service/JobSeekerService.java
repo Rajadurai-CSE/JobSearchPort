@@ -198,17 +198,27 @@ public class JobSeekerService {
     public List<JobResponseDto> getAllJobs() {
         List<JobEntity> jobs = jobEntityRepo.findByDeletedFalse();
         List<JobResponseDto> out = new ArrayList<>();
+        LocalDate today = LocalDate.now();
         for (JobEntity j : jobs) {
-            out.add(JobMapper.JobResponseDto(j));
+            // Only include jobs where deadline is null or >= today
+            if (j.getDeadline() == null || !j.getDeadline().isBefore(today)) {
+                out.add(JobMapper.JobResponseDto(j));
+            }
         }
         return out;
     }
 
     public List<JobResponseDto> searchJobs(JobSearchRequestdto req) {
         List<JobEntity> allJobs = jobEntityRepo.findByDeletedFalse();
+        LocalDate today = LocalDate.now();
 
         return allJobs.stream()
                 .filter(job -> {
+                    // Filter out expired jobs first
+                    if (job.getDeadline() != null && job.getDeadline().isBefore(today)) {
+                        return false;
+                    }
+
                     // Filter by title
                     if (req.getTitle() != null && !req.getTitle().isEmpty()) {
                         if (job.getTitle() == null ||
@@ -234,13 +244,13 @@ public class JobSeekerService {
                         String[] jobSkills = job.getRequiredSkills().toLowerCase().split(",");
                         boolean hasMatchingSkill = false;
                         // for (String skill : searchSkills) {
-                        //     if (jobSkills.contains(skill.trim())) {
-                        //         hasMatchingSkill = true;
-                        //         break;
-                        //     }
+                        // if (jobSkills.contains(skill.trim())) {
+                        // hasMatchingSkill = true;
+                        // break;
+                        // }
                         // }
                         for (String skill : searchSkills) {
-                            for(String jobreqskill : jobSkills){
+                            for (String jobreqskill : jobSkills) {
                                 if (jobreqskill.contains(skill.trim())) {
                                     hasMatchingSkill = true;
                                     break;

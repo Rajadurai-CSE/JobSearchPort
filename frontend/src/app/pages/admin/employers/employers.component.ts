@@ -9,7 +9,7 @@ import { DisplayEmployerProfile } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, NavbarComponent],
   templateUrl: './employers.component.html',
-  styleUrls: [ './employers.component.css']
+  styleUrls: ['./employers.component.css']
 })
 export class EmployersComponent implements OnInit {
   private apiService = inject(ApiService);
@@ -44,7 +44,7 @@ export class EmployersComponent implements OnInit {
   }
 
   denyEmployer(emp: DisplayEmployerProfile): void {
-    if (!confirm(`Deny ${emp.email}?`)) return;
+    if (!confirm(`Deny ${emp.email}? They can update their profile and re-apply.`)) return;
 
     this.apiService.denyEmployer(emp.userId).subscribe({
       next: () => {
@@ -55,11 +55,24 @@ export class EmployersComponent implements OnInit {
     });
   }
 
+  revokeEmployer(emp: DisplayEmployerProfile): void {
+    if (!confirm(`Revoke ${emp.email}? This will permanently block them and delete their jobs.`)) return;
+
+    this.apiService.revokeUser(emp.userId).subscribe({
+      next: () => {
+        emp.status = 'REVOKED';
+        this.showMessage('Employer revoked - all jobs have been removed', 'success');
+      },
+      error: () => this.showMessage('Failed to revoke', 'error')
+    });
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'APPROVED': return 'badge-success';
       case 'PENDING': return 'badge-warning';
       case 'DENIED': return 'badge-danger';
+      case 'REVOKED': return 'badge-dark';
       default: return 'badge-secondary';
     }
   }

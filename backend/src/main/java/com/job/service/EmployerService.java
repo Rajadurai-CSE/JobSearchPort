@@ -319,4 +319,21 @@ public class EmployerService {
     private String trim(String s) {
         return s == null ? null : s.trim();
     }
+
+    @Autowired
+    private com.job.repository.UserAuthRepository userAuthRepository;
+
+    @Transactional
+    public String reapplyForVerification(Long userId) {
+        EmployerProfile employer = getEmployerById(userId);
+        com.job.entity.registerentity.UserAuth user = employer.getUserAuth();
+
+        if (user.getStatus() != com.job.enums.Approval_Status.DENIED) {
+            throw new IllegalArgumentException("Only DENIED users can re-apply for verification");
+        }
+
+        user.setStatus(com.job.enums.Approval_Status.PENDING);
+        userAuthRepository.save(user);
+        return "Re-application submitted. Your profile is now pending review.";
+    }
 }

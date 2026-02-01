@@ -28,7 +28,7 @@
             <p class="saved-date text-sm text-muted">Saved {{ bm.savedAt | date:'mediumDate' }}</p>
             <div class="bookmark-actions">
                 <a [routerLink]="['/jobseeker/jobs', bm.jobId]" class="btn btn-outline btn-sm">View Details</a>
-                <button class="btn btn-primary btn-sm" (click)="openApplyModal(bm.jobId, bm.jobTitle)">Apply</button>
+                <!-- <button class="btn btn-primary btn-sm" (click)="openApplyModal(bm.jobId, bm.jobTitle)">Apply</button> -->
             </div>
         </div>
     </div>

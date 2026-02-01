@@ -50,7 +50,8 @@
                     <td>
                         <div class="action-buttons" *ngIf="emp.status === 'PENDING'">
                             <button class="btn btn-sm btn-success" (click)="approveEmployer(emp)">Approve</button>
-                            <button class="btn btn-sm btn-danger" (click)="denyEmployer(emp)">Deny</button>
+                            <button class="btn btn-sm btn-warning" (click)="denyEmployer(emp)">Deny</button>
+                            <button class="btn btn-sm btn-danger" (click)="revokeEmployer(emp)">Revoke</button>
                         </div>
                     </td>
                 </tr>

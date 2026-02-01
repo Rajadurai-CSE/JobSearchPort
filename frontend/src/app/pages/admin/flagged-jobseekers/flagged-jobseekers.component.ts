@@ -40,37 +40,37 @@ export class FlaggedJobseekersComponent implements OnInit {
     });
   }
 
-  openActionModal(item: DisplayReportedJS, action: string): void {
-    this.selectedItem = item;
-    this.selectedAction = action;
-    this.actionDescription = '';
-    this.showActionModal = true;
-  }
+  // openActionModal(item: DisplayReportedJS, action: string): void {
+  //   this.selectedItem = item;
+  //   this.selectedAction = action;
+  //   this.actionDescription = '';
+  //   this.showActionModal = true;
+  // }
 
-  closeActionModal(): void {
-    this.showActionModal = false;
-    this.selectedItem = null;
-    this.actionDescription = '';
-    this.selectedAction = '';
-  }
+  // closeActionModal(): void {
+  //   this.showActionModal = false;
+  //   this.selectedItem = null;
+  //   this.actionDescription = '';
+  //   this.selectedAction = '';
+  // }
 
-  submitAction(): void {
-    if (!this.selectedItem) return;
+  // submitAction(): void {
+  //   if (!this.selectedItem) return;
 
-    const actionWithDesc = this.actionDescription.trim()
-      ? `${this.selectedAction}: ${this.actionDescription.trim()}`
-      : this.selectedAction;
+  //   const actionWithDesc = this.actionDescription.trim()
+  //     ? `${this.selectedAction}: ${this.actionDescription.trim()}`
+  //     : this.selectedAction;
 
-    this.apiService.updateFlaggedJobSeeker(this.selectedItem.requestId, actionWithDesc).subscribe({
-      next: (updated) => {
-        this.selectedItem!.actionTaken = actionWithDesc;
-        this.showMessage(`Action taken: ${this.selectedAction}`, 'success');
-        this.closeActionModal();
-        this.loadFlaggedUsers();
-      },
-      error: () => this.showMessage('Failed to take action', 'error')
-    });
-  }
+  //   this.apiService.updateFlaggedJobSeeker(this.selectedItem.requestId, actionWithDesc).subscribe({
+  //     next: (updated) => {
+  //       this.selectedItem!.actionTaken = actionWithDesc;
+  //       this.showMessage(`Action taken: ${this.selectedAction}`, 'success');
+  //       this.closeActionModal();
+  //       this.loadFlaggedUsers();
+  //     },
+  //     error: () => this.showMessage('Failed to take action', 'error')
+  //   });
+  // }
 
   revokeUser(item: DisplayReportedJS): void {
     if (!confirm(`Are you sure you want to revoke access for ${item.jobSeekerName || item.jobSeekerEmail}?`)) return;

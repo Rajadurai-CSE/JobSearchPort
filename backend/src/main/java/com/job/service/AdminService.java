@@ -153,6 +153,24 @@ public class AdminService {
 		user.setStatus(Approval_Status.REVOKED);
 		userAuthRepository.save(user); // Only update status, keep profile
 
+		// If this is an employer, soft-delete their jobs and update applications
+		if (user.getRole() == Role.EMPLOYER) {
+			List<JobEntity> employerJobs = jobEntityRepo.findAllByEmployerProfile_UserId(userId);
+			for (JobEntity job : employerJobs) {
+				// Soft delete the job
+				job.setDeleted(true);
+				jobEntityRepo.save(job);
+
+				// Update all applications for this job
+				List<JobApplications> applications = jobApplicationRepo.findByJob_JobId(job.getJobId());
+				for (JobApplications app : applications) {
+					app.setStage(com.job.enums.ApplicationStage.EMPLOYER_UNTRUSTED);
+					app.setDescription("Employer account was revoked due to policy violation");
+					jobApplicationRepo.save(app);
+				}
+			}
+		}
+
 		return "User revoked successfully";
 	}
 
@@ -254,6 +272,24 @@ public class AdminService {
 				profile.setUserAuth(user);
 				user.setEmployerProfile(profile);
 			}
+
+			// Restore employer's jobs and applications
+			List<JobEntity> employerJobs = jobEntityRepo.findAllByEmployerProfile_UserId(userId);
+			for (JobEntity job : employerJobs) {
+				// Restore the job (make it visible again)
+				job.setDeleted(false);
+				jobEntityRepo.save(job);
+
+				// Restore applications that were marked as EMPLOYER_UNTRUSTED
+				List<JobApplications> applications = jobApplicationRepo.findByJob_JobId(job.getJobId());
+				for (JobApplications app : applications) {
+					if (app.getStage() == com.job.enums.ApplicationStage.EMPLOYER_UNTRUSTED) {
+						app.setStage(com.job.enums.ApplicationStage.APPLIED);
+						app.setDescription("Employer account was reinstated");
+						jobApplicationRepo.save(app);
+					}
+				}
+			}
 		} else if (user.getRole() == Role.JOB_SEEKER) {
 			if (user.getJobseeker() == null) {
 				JobSeekerProfile profile = new JobSeekerProfile();
@@ -266,7 +302,7 @@ public class AdminService {
 		}
 
 		userAuthRepository.save(user);
-		return "User reinstated successfully. User must complete their profile.";
+		return "User reinstated successfully. Jobs and applications have been restored.";
 	}
 
 	public SystemStatisticsDto getSystemStatistics() {

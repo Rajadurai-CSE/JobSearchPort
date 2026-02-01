@@ -48,10 +48,8 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        // Only block DENIED users - PENDING and REVOKED can login to see status pages
-        if (user.getStatus() == Approval_Status.DENIED) {
-            throw new UserAccessException("Your registration has been denied");
-        }
+        // DENIED users can now login to see status page and re-apply
+        // Frontend will handle routing to appropriate page based on status
         return jwtUtil.generateToken(user);
     }
 

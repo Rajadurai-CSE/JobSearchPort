@@ -14,6 +14,10 @@ export const authGuard: CanActivateFn = (route, state) => {
             router.navigate(['/revoked']);
             return false;
         }
+        if (status === 'DENIED') {
+            router.navigate(['/denied']);
+            return false;
+        }
         return true;
     }
 
@@ -80,10 +84,43 @@ export const statusGuard: CanActivateFn = (route, state) => {
             router.navigate(['/revoked']);
             return false;
         }
+        if (status === 'DENIED') {
+            router.navigate(['/denied']);
+            return false;
+        }
         if (status === 'APPROVED') {
             return true;
         }
     }
 
+    return false;
+};
+
+// Guard: Allow PENDING employers to access setup route
+export const setupGuard: CanActivateFn = (route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+
+    if (!authService.isLoggedIn()) {
+        router.navigate(['/login']);
+        return false;
+    }
+
+    const role = authService.getUserRole();
+    const status = authService.getUserStatus();
+
+    // Allow PENDING and DENIED employers to access setup
+    if (role === 'EMPLOYER' && (status === 'PENDING' || status === 'DENIED')) {
+        return true;
+    }
+
+    // If already approved, redirect to dashboard
+    if (role === 'EMPLOYER' && status === 'APPROVED') {
+        router.navigate(['/employer/dashboard']);
+        return false;
+    }
+
+    // Fallback to login for others
+    router.navigate(['/login']);
     return false;
 };

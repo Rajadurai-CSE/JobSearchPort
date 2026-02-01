@@ -101,6 +101,10 @@ export class JobFormComponent implements OnInit {
         this.showMessage('Location is required', 'error');
         return;
       }
+      if (!this.formData.salaryRange.trim()) {
+        this.showMessage('Salary range is required', 'error');
+        return;
+      }
       if (!this.formData.requiredSkills.trim()) {
         this.showMessage('Required skills are required', 'error');
         return;

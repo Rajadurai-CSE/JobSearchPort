@@ -19,6 +19,8 @@ public class JobCreateRequestDto {
 
     private String location;
     private String requiredSkills;
+
+    @NotBlank(message = "Salary range is required")
     private String salaryRange;
 
     @Min(value = 1, message = "Vacancies must be at least 1")

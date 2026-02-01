@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { EmpProfileUpdateRequest, Company, CompanyDto } from '../../../core/models/user.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { EmpProfileUpdateRequest, Company, CompanyDto } from '../../../core/mode
 })
 export class EmployerSetupComponent implements OnInit {
     private apiService = inject(ApiService);
+    private authService = inject(AuthService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
 
@@ -46,18 +48,28 @@ export class EmployerSetupComponent implements OnInit {
     };
 
     ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('userId');
-        if (id) {
-            this.userId = +id;
-            // Autofill name from registration state if available
-            const state = history.state;
-            if (state && state.name) {
-                this.formData.name = state.name;
+        const idParam = this.route.snapshot.paramMap.get('userId');
+        const loggedInUserId = this.authService.getUserId();
+
+        // Security: Verify the URL param matches the logged-in user's ID
+        if (!idParam || !loggedInUserId || +idParam !== loggedInUserId) {
+            // If mismatch, redirect to their own setup page or login
+            if (loggedInUserId) {
+                this.router.navigate(['/employer-setup', loggedInUserId]);
+            } else {
+                this.router.navigate(['/login']);
             }
-            this.loadCompanies();
-        } else {
-            this.router.navigate(['/login']);
+            return;
         }
+
+        this.userId = loggedInUserId;
+
+        // Autofill name from registration state if available
+        const state = history.state;
+        if (state && state.name) {
+            this.formData.name = state.name;
+        }
+        this.loadCompanies();
     }
 
     loadCompanies(): void {
@@ -145,8 +157,14 @@ export class EmployerSetupComponent implements OnInit {
         this.apiService.updateEmployerProfileForSetup(request).subscribe({
             next: () => {
                 this.saving = false;
-                this.showMessage('Profile saved! Redirecting to login...', 'success');
-                setTimeout(() => this.router.navigate(['/login']), 2000);
+                const status = this.authService.getUserStatus();
+                if (status === 'DENIED') {
+                    this.showMessage('Profile updated! Returning to status page...', 'success');
+                    setTimeout(() => this.router.navigate(['/denied']), 1500);
+                } else {
+                    this.showMessage('Profile saved! Redirecting...', 'success');
+                    setTimeout(() => this.router.navigate(['/employer/pending']), 1500);
+                }
             },
             error: (err) => {
                 this.saving = false;

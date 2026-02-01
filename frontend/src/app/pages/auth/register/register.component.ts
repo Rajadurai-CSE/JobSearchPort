@@ -2,8 +2,9 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { RegisterRequest } from '../../../core/models/auth.model';
+import { RegisterRequest, LoginRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -53,21 +54,38 @@ export class RegisterComponent {
       role: this.role
     };
 
-    this.authService.register(request).subscribe({
-      next: (response) => {
-        this.loading = false;
-        if (this.role === 'EMPLOYER') {
+    if (this.role === 'EMPLOYER') {
+      // Chain: Register -> Login -> Redirect to Setup
+      this.authService.register(request).pipe(
+        switchMap((response) => {
+          const loginRequest: LoginRequest = { email: this.email, password: this.password };
+          return this.authService.login(loginRequest);
+        })
+      ).subscribe({
+        next: () => {
+          this.loading = false;
+          const userId = this.authService.getUserId();
           this.success = 'Registration successful! Let\'s complete your profile.';
-          setTimeout(() => this.router.navigate(['/employer-setup', response.userId], { state: { name: this.name } }), 1500);
-        } else {
+          setTimeout(() => this.router.navigate(['/employer-setup', userId], { state: { name: this.name } }), 1500);
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = err.error?.message || err.error || 'Registration failed';
+        }
+      });
+    } else {
+      // Job Seeker flow (unchanged)
+      this.authService.register(request).subscribe({
+        next: () => {
+          this.loading = false;
           this.success = 'Registration successful! You can now login.';
           setTimeout(() => this.router.navigate(['/login']), 2000);
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = err.error?.message || err.error || 'Registration failed';
         }
-      },
-      error: (err) => {
-        this.loading = false;
-        this.error = err.error?.message || err.error || 'Registration failed';
-      }
-    });
+      });
+    }
   }
 }

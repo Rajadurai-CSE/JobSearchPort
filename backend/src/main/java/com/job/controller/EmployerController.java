@@ -140,4 +140,9 @@ public class EmployerController {
             @PathVariable Long employerId) {
         return ResponseEntity.ok(service.getMyFlaggedJobSeekers(employerId));
     }
+
+    @PutMapping("/reapply/{userId}")
+    public ResponseEntity<String> reapplyForVerification(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.reapplyForVerification(userId));
+    }
 }
