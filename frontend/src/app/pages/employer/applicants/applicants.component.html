@@ -37,8 +37,9 @@
                     <td>{{ app.jobSeekerName }}</td>
                     <td>{{ app.jobSeekerEmail }}</td>
                     <td>
-                        <a *ngIf="app.resumeUrl" [href]="app.resumeUrl" target="_blank"
-                            class="btn btn-sm btn-outline">📄 View</a>
+                        <a *ngIf="app.resumeUrl"
+                            [href]="app.resumeUrl?.startsWith('http') ? app.resumeUrl : 'https://' + app.resumeUrl"
+                            target="_blank" class="btn btn-sm btn-outline">📄 View</a>
                         <span *ngIf="!app.resumeUrl" class="text-muted">-</span>
                     </td>
                     <td>{{ app.appliedAt | date:'mediumDate' }}</td>

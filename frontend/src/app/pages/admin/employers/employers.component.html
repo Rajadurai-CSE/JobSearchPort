@@ -42,8 +42,9 @@
                         <span *ngIf="!emp.company" class="text-muted">N/A</span>
                     </td>
                     <td>
-                        <a *ngIf="emp.employerVerificationUrl" [href]="emp.employerVerificationUrl" target="_blank"
-                            class="btn btn-link btn-sm">View Document</a>
+                        <a *ngIf="emp.employerVerificationUrl"
+                            [href]="emp.employerVerificationUrl?.startsWith('http') ? emp.employerVerificationUrl : 'https://' + emp.employerVerificationUrl"
+                            target="_blank" class="btn btn-link btn-sm">View Document</a>
                         <span *ngIf="!emp.employerVerificationUrl" class="text-muted">-</span>
                     </td>
                     <td><span class="badge" [ngClass]="getStatusClass(emp.status)">{{ emp.status }}</span></td>

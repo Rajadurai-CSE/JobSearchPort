@@ -100,7 +100,8 @@
             </div>
             <div class="info-row" *ngIf="formData.resumeUrl">
                 <span class="info-label">Resume</span>
-                <a [href]="formData.resumeUrl" target="_blank">View Resume</a>
+                <a [href]="formData.resumeUrl?.startsWith('http') ? formData.resumeUrl : 'https://' + formData.resumeUrl"
+                    target="_blank">View Resume</a>
             </div>
         </div>
     </div>
